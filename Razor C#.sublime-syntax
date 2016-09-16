@@ -1,0 +1,310 @@
+%YAML 1.2
+---
+
+name: Razor C#
+file_extensions: cshtml
+scope: source.razor.cs
+
+variables:
+  unicode_char: '\\u[0-9a-fA-F]{,4}'
+  start_char: '(?:{{unicode_char}}|[A-Za-z_\p{L}])'
+  other_char: '(?:{{unicode_char}}|[A-Za-z_0-9\p{L}])'
+  name: '{{start_char}}{{other_char}}'
+
+contexts:
+  prototype:
+    - include: comments
+
+  comments:
+    - match: '@\*'
+      scope: punctuation.definition.comment.begin.razor
+      push:
+        - meta_scope: comment.block.razor
+        - match: '\*@'
+          scope: punctuation.definition.comment.end.razor
+          pop: true
+
+  # Used to identify embedded HTML content inside C# source.
+  html:
+    - include: text
+    - match: '(?=\s*<)'
+      push:
+        - match: '$'
+          pop: true
+        - include: main
+
+  # <text> block.
+  text:
+    - match: '\<text\>'
+      scope: keyword.control.text.razor
+      push: text_in
+  text_in:
+    - match: '<\/text>'
+      scope: keyword.control.text.razor
+      pop: true
+    - include: main
+
+  main:
+    - include: text
+    - include: scope:text.html.basic
+
+    # Section block.
+    - match: '\B(@section)\s+(({{name}}+))'
+      captures:
+        1: entity.name.tag.razor
+        2: meta.section
+        3: entity.name.type.razor
+      push:
+        - clear_scopes: 1
+        - match: \s*
+        - match: '\{'
+          scope: entity.name.tag.razor
+          set:
+            - match: '\}'
+              scope: entity.name.tag.razor
+              pop: true
+            - include: main
+
+    # Code block.
+    - match: '\B@\{'
+      scope: entity.name.tag.razor
+      push:
+        - meta_content_scope: source.cs
+        - match: '\}'
+          scope: entity.name.tag.razor
+          pop: true
+        - include: scope:source.cs
+      with_prototype:
+        - include: html
+
+    # E-mail addresses have the @ symbol but don't activate code.
+    - match: '[\+-.\w]+@[-a-z0-9]+(\.[-a-z0-9]+)*'
+
+    # Match an escaped @.
+    - match: '@@'
+      scope: constant.character.escape
+
+    - include: flow_control
+    - include: inline_context
+
+  flow_control:
+    # Specialty @if block.
+    - match: '\B@(if)\b'
+      scope: entity.name.tag.razor
+      captures:
+        1: keyword.control.conditional.if.cs
+      push: [scope:source.cs#else_block, razor_if_block, scope:source.cs#if_condition]
+      with_prototype:
+        - include: html
+
+    # Specialty @switch block.
+    - match: \B@(switch)\b
+      scope: entity.name.tag.razor
+      captures:
+        1: keyword.control.conditional.if.cs
+      push: [razor_switch_block, scope:source.cs#if_condition]
+      with_prototype:
+        - include: html
+
+    # Specialty @for block.
+    - match: '\B(@(for))\s*(\()'
+      captures:
+        1: entity.name.tag.razor
+        2: keyword.control.loop.for.cs
+        3: punctuation.definition.expression.loop.begin.cs
+      push: [razor_for_block, scope:source.cs#line_of_code_in, scope:source.cs#line_of_code_in, scope:source.cs#for_var_assignment, scope:source.cs#var_declaration]
+      with_prototype:
+        - include: html
+
+    # Specialty @foreach block.
+    - match: '\B(@(foreach))\s*(\()'
+      captures:
+        1: entity.name.tag.razor
+        2: keyword.control.loop.foreach.cs
+        3: punctuation.definition.expression.loop.begin.cs
+      push: [razor_for_block, scope:source.cs#foreach_var_assignment, scope:source.cs#var_declaration]
+      with_prototype:
+        - include: html
+
+    # Specialty @try block.
+    # TODO
+    - match: \B@(try)\b
+      scope: entity.name.tag.razor
+      captures:
+        1: keyword.control.trycatch.try.cs
+      set: [scope:source.cs#finally_block, scope:source.cs#catch_expr, razor_try_block]
+
+    # Specialty @using block.
+    - match: '\B(@(using))\s*(\()'
+      captures:
+        1: entity.name.tag.razor
+        2: keyword.control.trycatch.using.cs
+        3: punctuation.definition.expression.trycatch.using.begin.cs
+      push: [razor_using_block, scope:source.cs#line_of_code]
+      with_prototype:
+        - include: html
+
+    # Specialty @do block.
+    - match: \B@(do)\b
+      scope: entity.name.tag.razor
+      captures:
+        1: keyword.control.loop.do.cs
+      set: [scope:source.cs#do_condition, razor_while_block]
+
+    # Specialty @while block.
+    - match: \B@(while)\b
+      scope: entity.name.tag.razor
+      captures:
+        1: keyword.control.loop.while.cs
+      set: [razor_while_block, scope:source.cs#while_condition]
+
+  # Razor operators that work in an single-line fashion.
+  inline_context:
+    - include: scope:text.html.basic
+
+    # Inline multi-token code.
+    - match: '@\('
+      scope: entity.name.tag.razor
+      push:
+        - meta_content_scope: source.cs
+        - match: '\)'
+          scope: entity.name.tag.razor
+          pop: true
+        - include: scope:source.cs#line_of_code_in
+      with_prototype:
+        - include: html
+
+    # Inline code.
+    - match: '@'
+      scope: entity.name.tag.razor
+      push:
+        - meta_content_scope: source.cs
+        - match: (?=[^{{name}}\.\(\)])
+          pop: true
+        - match: '{{name}}*(?=<)'
+          captures:
+            1: variable.other.type.cs
+          pop: true
+        - include: scope:source.cs#line_of_code_in
+
+  # Special Razor code_block_in.
+  # Ensures that we support HTML within the code block.
+  razor_code_block_in:
+    - include: razor_nested_code_block_in
+    - match: \s*
+    - match: (?=\S)
+      push:
+        - include: scope:source.cs#line_of_code
+      with_prototype:
+        - include: razor_nested_code_block_in
+
+  # HTML context is activated by an HTML tag or by the @: operator.
+  razor_nested_code_block_in:
+    - include: html
+    - match: '@:'
+      scope: entity.name.tag.razor
+      push:
+        - include: inline_context
+        - match: $
+          pop: true
+
+  # Modified to use customized code_block_in and to force opening brackets.
+  razor_if_block:
+    - match: \{
+      scope: punctuation.section.conditional.begin.cs
+      set:
+        - match: \}
+          scope: punctuation.section.conditional.end.cs
+          pop: true
+        - include: razor_code_block_in
+    - match: \S
+      scope: invalid.illegal.expected.opening-bracket
+      pop: true
+  razor_switch_block:
+    - match: \{
+      scope: punctuation.section.switch.begin.cs
+      set:
+        - match: \}
+          scope: punctuation.section.switch.end.cs
+          pop: true
+        - match: '\b(default)\s*(:)'
+          captures:
+            1: keyword.control.switch.case.cs
+            2: punctuation.separator.case-statement.cs
+        - match: '\b(case)\b'
+          scope: keyword.control.switch.case.cs
+          push:
+            - include: literals
+            - match: '({{name}}(\.))*{{name}}'
+              captures:
+                2: variable.other.namespace.cs
+                3: punctuation.accessor.dot.cs
+                4: constant.other.cs
+            - match: (:)
+              scope: punctuation.separator.case-statement.cs
+              pop: true
+            - match: $
+              pop: true
+        - include: razor_code_block_in
+    - match: \S
+      scope: invalid.illegal.expected.opening-bracket
+      pop: true
+  razor_for_block:
+    - meta_scope: meta.block.loop.for.cs
+    - match: \)
+      scope: punctuation.definition.expression.loop.end.cs
+      set:
+      - match: \{
+        scope: punctuation.section.loop.begin.cs
+        set:
+          - meta_scope: meta.block.loop.cs
+          - match: \}
+            scope: punctuation.section.loop.end.cs
+            pop: true
+          - include: razor_code_block_in
+      - match: \S
+        scope: invalid.illegal.expected.opening-bracket
+        pop: true
+  razor_try_block:
+    - match: \{
+      scope: punctuation.section.trycatch.begin.cs
+      set:
+        - match: \}
+          scope: punctuation.section.trycatch.end.cs
+          pop: true
+        - include: razor_code_block_in
+    - match: (?=\S)
+      set:
+        - match: \s*$
+          pop: true
+        - include: razor_code_block_in
+  razor_using_block:
+    - meta_scope: meta.block.trycatch.using.cs
+    - match: \)
+      scope: punctuation.definition.expression.trycatch.using.end.cs
+      set:
+      - match: \{
+        scope: punctuation.section.trycatch.begin.cs
+        set:
+          - meta_scope: meta.block.trycatch.cs
+          - match: \}
+            scope: punctuation.section.trycatch.end.cs
+            pop: true
+          - include: razor_code_block_in
+      - match: \S
+        scope: invalid.illegal.expected.opening-bracket
+        pop: true
+  razor_while_block:
+    - meta_scope: meta.block.loop.while.cs
+    - match: \{
+      scope: punctuation.section.loop.begin.cs
+      set:
+        - meta_scope: meta.block.loop.while.cs
+        - match: '\}'
+          scope: punctuation.section.loop.begin.cs
+          pop: true
+        - include: razor_code_block_in
+    - match: (?=\S)
+      set:
+        - meta_scope: meta.block.loop.while.cs
+        - include: line_of_code

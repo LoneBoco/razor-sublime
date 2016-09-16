@@ -1,0 +1,106 @@
+@section header {
+
+    <p>This is a test</p>
+
+    @* Some type of comment *@
+
+    @variable.whatever(x => { x < 10 })<p>Okay</p>
+
+    @if (test == 1) {
+        int i = a;
+    }
+}
+
+@{
+    #region Test Region
+    string[] teamMembers = {"Matt", "Joanne", "Robert", "Nancy"};
+    <p>The number of names in the teamMembers array: @teamMembers.Length</p>
+    <p>Robert is now in position: @Array.IndexOf(teamMembers, "Robert")</p>
+    #endregion
+
+    foreach (var name in teamMembers)
+    {
+        var name2 = "(U) " + name;
+        <p>@name.Select(x => x.ToUpper())</p>
+    }
+    Array.Reverse(teamMembers);
+    foreach (var reversedItem in teamMembers)
+    {
+        <text>
+            Reversed
+            @reversedItem
+        </text>
+    }
+}
+
+@{
+    // This doesn't work right now.  :(
+    Func<dynamic, object> b = @<strong>@item</strong>;
+}
+
+<ul>
+@foreach (var myItem in Request.ServerVariables)
+{
+    @:My item is @myItem.Test()
+}
+</ul>
+
+@for(var i = 10; i < 21; i++)
+{
+    var x = i;
+    <p>Line #: @i</p>
+}
+
+@using(var test = new Test())
+{
+    <p>Some test</p>
+}
+
+<p>My email is example@example.co.uk</p>
+<p>The book is ISBN@(isbnNumber)</p>
+<span>Escaped @@ symbol</span>
+
+@if (DateTime.Now.Year == 2010) {
+    <text>
+        if year is 2010 then print this <br/>
+        multi-line text box and
+        the date: @DateTime.Now
+    </text>
+}
+
+@switch (DateTime.Now.Year)
+{
+    case 2015:
+        <p>It is 2015</p>
+        break;
+    case 2016:
+        <p>It is 2016</p>
+        break;
+    default: break;
+}
+
+@do
+{
+    <p>LOOP</p>
+}
+while(true)
+
+@while (true)
+{
+    <p>LOOP</p>
+}
+
+@try
+{
+    if (true)
+    {
+        var temp = true;
+        <p>Try</p>
+        @:<p>TRY</p>
+    }
+}
+
+@section footer
+{
+    <p>Footer</p>
+}
