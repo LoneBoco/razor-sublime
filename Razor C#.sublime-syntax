@@ -78,6 +78,20 @@ contexts:
               pop: true
             - include: main
 
+    # Model block.
+    - match: '\B(@model)\s+'
+      captures:
+        1: entity.name.tag.razor
+      push:
+        - match: ({{name}}*)(\.)
+          captures:
+            1: variable.other.cs
+            2: punctuation.accessor.dot.cs
+        - match: ({{name}}+)
+          scope: variable.other.type.cs support.type.cs
+        - match: \s
+          pop: true
+
     # Code block.
     - match: '\B@\{'
       scope: entity.name.tag.razor
@@ -144,9 +158,23 @@ contexts:
       scope: entity.name.tag.razor
       captures:
         1: keyword.control.trycatch.try.cs
-      set: [scope:source.cs#finally_block, razor_catch_expr, razor_try_block]
+      push: [scope:source.cs#finally_block, razor_catch_expr, razor_try_block]
 
-    # Specialty @using block.
+    # Specialty @using blocks.
+    - match: '\B(@(using))\s+{{name}}*\s*(=)\s*'
+      captures:
+        1: entity.name.tag.razor
+        2: keyword.control.import.cs
+        3: entity.name.type.cs
+        4: storage.modifier.namespace.as.cs
+      push: scope:source.cs#using_namespace
+    - match: '\B(@(using))\s+(static\b)?\s*{{name}}'
+      captures:
+        1: entity.name.tag.razor
+        2: keyword.control.import.cs
+        3: storage.modifier.namespace.cs
+        4: variable.namespace.cs
+      push: scope:source.cs#using_namespace
     - match: '\B(@(using))\s*(\()'
       captures:
         1: entity.name.tag.razor
