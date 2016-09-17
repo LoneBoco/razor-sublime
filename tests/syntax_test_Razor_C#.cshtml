@@ -56,7 +56,7 @@
     <p>Some test</p>
 }
 
-<p>My email is example@example.co.uk</p>
+<p>My email is example@example</p>
 <p>The book is ISBN@(isbnNumber)</p>
 <span>Escaped @@ symbol</span>
 
@@ -81,23 +81,38 @@
 
 @do
 {
+    var t = true;
     <p>LOOP</p>
 }
 while(true)
 
 @while (true)
 {
+    var t = true;
     <p>LOOP</p>
 }
 
 @try
 {
+    var t = true;
     if (true)
     {
         var temp = true;
         <p>Try</p>
         @:<p>TRY</p>
     }
+} catch {
+    var t = true;
+    <p>catch</p>
+}
+catch (Exception e)
+{
+    var t = false;
+    <div>catch e</div>
+}
+finally
+{
+    var t = true;
 }
 
 @section footer
