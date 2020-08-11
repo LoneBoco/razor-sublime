@@ -4,6 +4,7 @@
 name: Razor C#
 file_extensions: cshtml
 scope: text.html.basic source.razor.cs
+version: 2
 
 variables:
   unicode_char: '\\u[0-9a-fA-F]{,4}'
@@ -16,9 +17,15 @@ contexts:
     - include: comments
 
   comments:
+    # E-mail addresses have the @ symbol but don't activate code.
+    - match: '[\+-.\w]+@[-a-z0-9]+(\.[-a-z0-9]+)*'
+      scope: meta.email
+    # Match an escaped @.
+    - match: '@@'
+      scope: constant.character.escape
     # Attempt to fix the scopes so toggle comment works.
-    - match: '\s*(?=@\*)'
-      scope: meta.embedded.html
+    # - match: '^\s*(?=@\*)'
+      # scope: meta.embedded.html
     # Match the start of our comment.
     - match: '@\*'
       scope: punctuation.definition.comment.begin.razor
@@ -46,7 +53,9 @@ contexts:
         - meta_scope: meta.embedded.html
         - match: '^'
           pop: true
-        - include: main
+        - include: scope:text.html.basic
+      with_prototype:
+        - include: razor
 
   # <text> block.
   text:
@@ -60,10 +69,45 @@ contexts:
     - include: main
 
   main:
-    - include: text
+    - include: razor
     - include: scope:text.html.basic
 
-    # Section block.
+  razor:
+    - include: text
+    - include: razor_block
+    - include: flow_control
+    - include: inline_context
+
+  razor_block:
+    # @model
+    - match: '\B(@model)\s+'
+      captures:
+        1: entity.name.tag.razor
+      push:
+        - match: ({{name}}*)(\.)
+          captures:
+            1: variable.other.cs
+            2: punctuation.accessor.dot.cs
+        - match: ({{name}}+)
+          scope: variable.other.type.cs support.type.cs
+        - match: \s
+          pop: true
+
+    # @using namespace
+    - match: (@using)\s+{{name}}*\s*(=)\s*
+      captures:
+        1: keyword.control.import.cs
+        2: entity.name.type.cs
+        3: storage.modifier.namespace.as.cs
+      set: scope:source.cs#using_namespace
+    - match: '(using)\s+(static\b)?\s*{{name}}'
+      captures:
+        1: keyword.control.import.cs
+        2: storage.modifier.namespace.cs
+        3: variable.namespace.cs
+      set: scope:source.cs#using_namespace
+
+    # @section block.
     - match: '\B(@section)\s+({{name}}+)'
       captures:
         1: entity.name.tag.razor
@@ -78,21 +122,7 @@ contexts:
               pop: true
             - include: main
 
-    # Model block.
-    - match: '\B(@model)\s+'
-      captures:
-        1: entity.name.tag.razor
-      push:
-        - match: ({{name}}*)(\.)
-          captures:
-            1: variable.other.cs
-            2: punctuation.accessor.dot.cs
-        - match: ({{name}}+)
-          scope: variable.other.type.cs support.type.cs
-        - match: \s
-          pop: true
-
-    # Code block.
+    # @{} code block.
     - match: '\B@\{'
       scope: entity.name.tag.razor
       push:
@@ -101,21 +131,12 @@ contexts:
           scope: entity.name.tag.razor
           pop: true
         - include: scope:source.cs
+          apply_prototype: true
       with_prototype:
         - include: html
 
-    # E-mail addresses have the @ symbol but don't activate code.
-    - match: '[\+-.\w]+@[-a-z0-9]+(\.[-a-z0-9]+)*'
-
-    # Match an escaped @.
-    - match: '@@'
-      scope: constant.character.escape
-
-    - include: flow_control
-    - include: inline_context
-
   flow_control:
-    # Specialty @if block.
+    # @if block.
     - match: '\B@(if)\b'
       scope: entity.name.tag.razor
       captures:
@@ -124,7 +145,7 @@ contexts:
       with_prototype:
         - include: html
 
-    # Specialty @switch block.
+    # @switch block.
     - match: \B@(switch)\b
       scope: entity.name.tag.razor
       captures:
@@ -133,7 +154,7 @@ contexts:
       with_prototype:
         - include: html
 
-    # Specialty @for block.
+    # @for block.
     - match: '\B(@(for))\s*(\()'
       captures:
         1: entity.name.tag.razor
@@ -143,7 +164,7 @@ contexts:
       with_prototype:
         - include: html
 
-    # Specialty @foreach block.
+    # @foreach block.
     - match: '\B(@(foreach))\s*(\()'
       captures:
         1: entity.name.tag.razor
@@ -153,14 +174,14 @@ contexts:
       with_prototype:
         - include: html
 
-    # Specialty @try block.
+    # @try block.
     - match: \B@(try)\b
       scope: entity.name.tag.razor
       captures:
         1: keyword.control.trycatch.try.cs
       push: [scope:source.cs#finally_block, razor_catch_expr, razor_try_block]
 
-    # Specialty @using blocks.
+    # @using blocks.
     - match: '\B(@(using))\s+{{name}}*\s*(=)\s*'
       captures:
         1: entity.name.tag.razor
@@ -184,23 +205,36 @@ contexts:
       with_prototype:
         - include: html
 
-    # Specialty @do block.
+    # @do block.
     - match: \B@(do)\b
       scope: entity.name.tag.razor
       captures:
         1: keyword.control.loop.do.cs
-      set: [scope:source.cs#do_condition, razor_while_block]
+      push: [scope:source.cs#do_condition, razor_while_block]
+      with_prototype:
+        - include: html
 
-    # Specialty @while block.
+    # @while block.
     - match: \B@(while)\b
       scope: entity.name.tag.razor
       captures:
         1: keyword.control.loop.while.cs
-      set: [razor_while_block, scope:source.cs#while_condition]
+      push: [razor_while_block, scope:source.cs#while_condition]
+      with_prototype:
+        - include: html
+
+    # @lock block.
+    - match: \B@(lock)\b
+      scope: entity.name.tag.razor
+      captures:
+        1: keyword.control.other.lock.cs
+      push: [razor_expression_block, scope:source.cs#line_of_code]
+      with_prototype:
+        - include: html
 
   # Razor operators that work in an single-line fashion.
   inline_context:
-    - include: scope:text.html.basic
+    # - include: scope:text.html.basic
 
     # Inline multi-token code.
     - match: '@\('
@@ -214,14 +248,14 @@ contexts:
       with_prototype:
         - include: html
 
-    # Inline code.
-    - match: '@'
+    # Inline expression.
+    - match: '@(?!if|for|foreach|do|while)'
       scope: entity.name.tag.razor
       push:
         - meta_content_scope: source.cs
         - match: (?=[^{{name}}\.\(\)])
           pop: true
-        - match: '{{name}}*(?=<)'
+        - match: '[{{name}}\.]*(?=<)'
           captures:
             1: variable.other.type.cs
           pop: true
@@ -245,25 +279,25 @@ contexts:
       scope: entity.name.tag.razor
       push:
         - meta_scope: meta.embedded.html
-        - include: inline_context
+        - include: main
         - match: \n
           pop: true
 
   # Modified to use customized code_block_in and to force opening brackets.
   razor_if_block:
-    - match: \{\n?
-      scope: punctuation.section.conditional.begin.cs
+    - match: \{
+      scope: meta.block.cs punctuation.section.block.begin.cs
       set:
-        - meta_content_scope: source.cs
+        - meta_content_scope: meta.block.cs
         - match: \}
-          scope: punctuation.section.conditional.end.cs
+          scope: meta.block.cs punctuation.section.block.end.cs
           pop: true
         - include: razor_code_block_in
     - match: \S
       scope: invalid.illegal.expected.opening-bracket
       pop: true
   razor_switch_block:
-    - match: \{\n?
+    - match: \{
       scope: punctuation.section.switch.begin.cs
       set:
         - meta_content_scope: source.cs
@@ -309,7 +343,7 @@ contexts:
         scope: invalid.illegal.expected.opening-bracket
         pop: true
   razor_try_block:
-    - match: \{\n?
+    - match: \{
       scope: punctuation.section.trycatch.begin.cs
       set:
         - meta_content_scope: source.cs
@@ -322,6 +356,9 @@ contexts:
         - match: \s*$
           pop: true
         - include: razor_code_block_in
+    - match: \S
+      scope: invalid.illegal.expected.opening-bracket
+      pop: true
   razor_catch_expr:
     - match: '(catch)\s*(\()'
       captures:
@@ -339,7 +376,7 @@ contexts:
       set: razor_trycatch_block
   razor_trycatch_block:
     - meta_scope: meta.block.trycatch.cs
-    - match: \{\n?
+    - match: \{
       scope: punctuation.section.trycatch.begin.cs
       set:
         - meta_scope: meta.block.trycatch.cs
@@ -359,17 +396,17 @@ contexts:
     - match: (?=\S)
       pop: true
   razor_using_block:
-    - meta_scope: meta.block.trycatch.using.cs
+    - meta_scope: meta.group.cs
     - match: \)
-      scope: punctuation.definition.expression.trycatch.using.end.cs
+      scope: meta.group.cs punctuation.section.group.end.cs
       set:
-      - match: \{\n?
-        scope: punctuation.section.trycatch.begin.cs
+      - match: \{
+        scope: punctuation.section.block.begin.cs
         set:
-          - meta_scope: meta.block.trycatch.cs
+          - meta_scope: meta.block.cs
           - meta_content_scope: source.cs
           - match: \}
-            scope: punctuation.section.trycatch.end.cs
+            scope: punctuation.section.block.end.cs
             pop: true
           - include: razor_code_block_in
       - match: \S
@@ -377,16 +414,30 @@ contexts:
         pop: true
   razor_while_block:
     - meta_scope: meta.block.loop.while.cs
-    - match: \{\n?
-      scope: punctuation.section.loop.begin.cs
+    - match: \{
+      scope: punctuation.section.block.begin.cs
       set:
-        - meta_scope: meta.block.loop.while.cs
+        - meta_scope: meta.block.cs
         - meta_content_scope: source.cs
         - match: '\}'
-          scope: punctuation.section.loop.begin.cs
+          scope: punctuation.section.block.end.cs
           pop: true
         - include: razor_code_block_in
-    - match: (?=\S)
+    - match: \S
+      scope: invalid.illegal.expected.opening-bracket
+      pop: true
+  razor_expression_block:
+    - meta_content_scope: meta.group.cs
+    - match: \)
+      scope: meta.group.cs punctuation.section.group.end.cs
       set:
-        - meta_scope: meta.block.loop.while.cs
-        - include: scope:source.cs#line_of_code
+        - match: \{
+          scope: meta.block.cs punctuation.section.block.begin.cs
+          set:
+            - meta_content_scope: meta.block.cs
+            - match: \}
+              scope: meta.block.cs punctuation.section.block.end.cs
+              pop: true
+            - include: razor_code_block_in
+        - match: (?=\S)
+          pop: true

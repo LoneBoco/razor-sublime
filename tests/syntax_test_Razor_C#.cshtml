@@ -1,5 +1,12 @@
+
 @using MyApp.Models
 @model MyApp.Models.MyModel
+
+@section test {
+
+    <p>Test</p>
+
+}
 
 @section header {
 
@@ -18,6 +25,7 @@
     #region Test Region
     string[] teamMembers = {"Matt", "Joanne", "Robert", "Nancy"};
     <p>The number of names in the teamMembers array: @teamMembers.Length</p>
+    <p>The number of names in the teamMembers array: @teamMembers.Length </p>
     <p>Robert is now in position: @Array.IndexOf(teamMembers, "Robert")</p>
     #endregion
 
@@ -56,19 +64,26 @@
 
 @using(var test = new Test())
 {
-    <p>Some test</p>
+    <p style="display: none;">Some test</p>
 }
 
 <p>My email is example@example</p>
 <p>The book is ISBN@(isbnNumber)</p>
 <span>Escaped @@ symbol</span>
 
+@if (true) {
+    var test = true;
+}
+
 @if (DateTime.Now.Year == 2010) {
+
     <text>
         if year is 2010 then print this <br/>
         multi-line text box and
         the date: @DateTime.Now
     </text>
+
+    <p @if (true) { <text>style="display: none"</text> }>Test</p>
 }
 
 @switch (DateTime.Now.Year)
@@ -82,18 +97,23 @@
     default: break;
 }
 
-@do
+@while (true)
 {
     var t = true;
-    <p>LOOP</p>
 }
-while(true)
 
 @while (true)
 {
     var t = true;
     <p>LOOP</p>
 }
+
+@do
+{
+    var t = true;
+    <p>LOOP</p>
+}
+while(true)
 
 @try
 {
