@@ -1,5 +1,6 @@
 
 @using MyApp.Models
+
 @model MyApp.Models.MyModel
 
 @section test {
@@ -26,6 +27,7 @@
     string[] teamMembers = {"Matt", "Joanne", "Robert", "Nancy"};
     <p>The number of names in the teamMembers array: @teamMembers.Length</p>
     <p>The number of names in the teamMembers array: @teamMembers.Length </p>
+    @:Raw HTML line test @teamMembers.Length
     <p>Robert is now in position: @Array.IndexOf(teamMembers, "Robert")</p>
     #endregion
 
@@ -45,14 +47,14 @@
 }
 
 @{
-    // This doesn't work right now.  :(
+    // This doesn't work right now.  :(  Probably won't ever work.
     Func<dynamic, object> b = @<strong>@item</strong>;
 }
 
 <ul>
 @foreach (var myItem in Request.ServerVariables)
 {
-    @:My item is @myItem.Test()
+    @:<li>My item is @myItem.Test()
 }
 </ul>
 
@@ -83,6 +85,7 @@
         the date: @DateTime.Now
     </text>
 
+    @* BUG: The style should highlight but it doesn't.  Might not be fixable. *@
     <p @if (true) { <text>style="display: none"</text> }>Test</p>
 }
 

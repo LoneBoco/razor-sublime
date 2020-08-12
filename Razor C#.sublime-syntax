@@ -3,7 +3,7 @@
 
 name: Razor C#
 file_extensions: cshtml
-scope: text.html.basic source.razor.cs
+scope: source.razor.cs text.html.basic
 version: 2
 
 variables:
@@ -48,25 +48,34 @@ contexts:
   html:
     - include: comments
     - include: text
-    - match: '\s*(?=<)'
-      push:
-        - meta_scope: meta.embedded.html
-        - match: '^'
-          pop: true
-        - include: scope:text.html.basic
+    - match: '@:'
+      scope: entity.name.tag.razor
+      push: html_line
       with_prototype:
         - include: razor
+    - match: '\s*(?=<)'
+      push: html_line
+      with_prototype:
+        - include: razor
+
+  html_line:
+    - meta_content_scope: meta.embedded.html
+    - clear_scopes: 1
+    - match: '^'
+      pop: true
+    - include: scope:text.html.basic
 
   # <text> block.
   text:
     - match: '\<text\>'
       scope: keyword.control.text.razor
-      push: text_in
-  text_in:
-    - match: '<\/text>'
-      scope: keyword.control.text.razor
-      pop: true
-    - include: main
+      set:
+        - clear_scopes: 2
+        - meta_scope: meta.embedded.html
+        - match: '<\/text>'
+          scope: keyword.control.text.razor
+          pop: true
+        - include: main
 
   main:
     - include: razor
@@ -92,20 +101,6 @@ contexts:
           scope: variable.other.type.cs support.type.cs
         - match: \s
           pop: true
-
-    # @using namespace
-    - match: (@using)\s+{{name}}*\s*(=)\s*
-      captures:
-        1: keyword.control.import.cs
-        2: entity.name.type.cs
-        3: storage.modifier.namespace.as.cs
-      set: scope:source.cs#using_namespace
-    - match: '(using)\s+(static\b)?\s*{{name}}'
-      captures:
-        1: keyword.control.import.cs
-        2: storage.modifier.namespace.cs
-        3: variable.namespace.cs
-      set: scope:source.cs#using_namespace
 
     # @section block.
     - match: '\B(@section)\s+({{name}}+)'
@@ -234,8 +229,6 @@ contexts:
 
   # Razor operators that work in an single-line fashion.
   inline_context:
-    # - include: scope:text.html.basic
-
     # Inline multi-token code.
     - match: '@\('
       scope: entity.name.tag.razor
@@ -254,10 +247,6 @@ contexts:
       push:
         - meta_content_scope: source.cs
         - match: (?=[^{{name}}\.\(\)])
-          pop: true
-        - match: '[{{name}}\.]*(?=<)'
-          captures:
-            1: variable.other.type.cs
           pop: true
         - include: scope:source.cs#line_of_code_in
 
@@ -286,9 +275,9 @@ contexts:
   # Modified to use customized code_block_in and to force opening brackets.
   razor_if_block:
     - match: \{
-      scope: meta.block.cs punctuation.section.block.begin.cs
+      scope: meta.block.cs punctuation.section.block.begin.cs source.cs
       set:
-        - meta_content_scope: meta.block.cs
+        - meta_content_scope: meta.block.cs source.cs
         - match: \}
           scope: meta.block.cs punctuation.section.block.end.cs
           pop: true
@@ -403,8 +392,7 @@ contexts:
       - match: \{
         scope: punctuation.section.block.begin.cs
         set:
-          - meta_scope: meta.block.cs
-          - meta_content_scope: source.cs
+          - meta_content_scope: meta.block.cs source.cs
           - match: \}
             scope: punctuation.section.block.end.cs
             pop: true
@@ -417,8 +405,7 @@ contexts:
     - match: \{
       scope: punctuation.section.block.begin.cs
       set:
-        - meta_scope: meta.block.cs
-        - meta_content_scope: source.cs
+        - meta_content_scope: meta.block.cs source.cs
         - match: '\}'
           scope: punctuation.section.block.end.cs
           pop: true
@@ -434,7 +421,7 @@ contexts:
         - match: \{
           scope: meta.block.cs punctuation.section.block.begin.cs
           set:
-            - meta_content_scope: meta.block.cs
+            - meta_content_scope: meta.block.cs source.cs
             - match: \}
               scope: meta.block.cs punctuation.section.block.end.cs
               pop: true
