@@ -1,10 +1,9 @@
 # razor-sublime
-Razor template markup syntax for Sublime Text 3
+Razor template markup syntax for Sublime Text 4
 
 ## Dependencies
 
-This syntax is reliant on the re-worked C# syntax developed by gwenzek:  
-[https://github.com/gwenzek/Packages](https://github.com/gwenzek/Packages)
+Sublime Text 4 build 4075 or higher.
 
 ## Installation
 
@@ -18,9 +17,9 @@ This syntax is reliant on the re-worked C# syntax developed by gwenzek:
     * OS X: `~/Library/Application\ Support/Sublime\ Text\ 3/Packages/`
     * Linux: `~/.config/sublime-text-3/Packages/`
     * Windows: `%APPDATA%\Sublime Text 3\Packages\`
-2. Clone this repository here into subdirectory Asciidoctor:
+2. Clone this repository here:
 
-        git clone https://github.com/LoneBoco/razor-sublime.git Razor
+        git clone https://github.com/LoneBoco/razor-sublime.git
 3. Restart SublimeText.
 
 ## License
