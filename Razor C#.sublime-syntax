@@ -3,7 +3,7 @@
 
 name: Razor C#
 file_extensions: cshtml
-scope: source.razor.cs text.html.basic
+scope: embedding.razor.cs text.html.basic
 version: 2
 
 variables:
@@ -123,7 +123,7 @@ contexts:
         0: keyword.other.codeblock.razor
         1: punctuation.section.block.begin
       push:
-        - meta_content_scope: source.cs
+        - meta_content_scope: source.cs.embedded.razor
         - match: '\}'
           scope: keyword.other.codeblock.razor punctuation.section.block.end
           pop: true
@@ -235,7 +235,7 @@ contexts:
     - match: '@\('
       scope: keyword.other.inline.begin.razor
       push:
-        - meta_content_scope: source.cs
+        - meta_content_scope: source.cs.embedded.razor
         - match: '\)'
           scope: keyword.other.inline.end.razor
           pop: true
@@ -247,7 +247,7 @@ contexts:
     - match: '@(?!if|for|foreach|do|while)'
       scope: keyword.other.inline.razor
       push:
-        - meta_content_scope: source.cs
+        - meta_content_scope: source.cs.embedded.razor
         - match: (?=[^{{name}}\.\(\)])
           pop: true
         - include: scope:source.cs#line_of_code_in
@@ -279,7 +279,7 @@ contexts:
     - match: \{
       scope: meta.block.razor keyword.other.if.razor punctuation.section.block.begin.razor
       set:
-        - meta_content_scope: meta.block.cs source.cs
+        - meta_content_scope: source.cs.embedded.razor meta.block.cs
         - match: \}
           scope: meta.block.razor keyword.other.if.razor punctuation.section.block.end.razor
           pop: true
@@ -291,7 +291,7 @@ contexts:
     - match: \{
       scope: keyword.other.switch.razor punctuation.section.switch.begin.razor
       set:
-        - meta_content_scope: source.cs
+        - meta_content_scope: source.cs.embedded.razor
         - match: \}
           scope: keyword.other.switch.razor punctuation.section.switch.end.razor
           pop: true
@@ -325,7 +325,7 @@ contexts:
       - match: \{
         scope: keyword.other.for.razor punctuation.section.loop.begin.razor
         set:
-          - meta_content_scope: meta.block.loop.cs source.cs
+          - meta_content_scope: source.cs.embedded.razor meta.block.loop.cs
           - match: \}
             scope: keyword.other.for.razor punctuation.section.loop.end.razor
             pop: true
@@ -337,7 +337,7 @@ contexts:
     - match: \{
       scope: keyword.other.try.razor punctuation.section.trycatch.begin.razor
       set:
-        - meta_content_scope: source.cs
+        - meta_content_scope: source.cs.embedded.razor
         - match: \}
           scope: keyword.other.try.razor punctuation.section.trycatch.end.razor
           pop: true
@@ -371,7 +371,7 @@ contexts:
       scope: keyword.other.trycatch.razor punctuation.section.trycatch.begin.razor
       set:
         - meta_scope: meta.block.trycatch.cs
-        - meta_content_scope: source.cs
+        - meta_content_scope: source.cs.embedded.razor
         - match: \}
           scope: keyword.other.trycatch.razor punctuation.section.trycatch.end.razor
           pop: true
@@ -394,7 +394,7 @@ contexts:
       - match: \{
         scope: keyword.other.using.razor punctuation.section.block.begin.razor
         set:
-          - meta_content_scope: meta.block.cs source.cs
+          - meta_content_scope: source.cs.embedded.razor meta.block.cs
           - match: \}
             scope: keyword.other.using.razor punctuation.section.block.end.razor
             pop: true
@@ -407,7 +407,7 @@ contexts:
     - match: \{
       scope: keyword.other.while.razor punctuation.section.block.begin.razor
       set:
-        - meta_content_scope: meta.block.cs source.cs
+        - meta_content_scope: source.cs.embedded.razor meta.block.cs
         - match: '\}'
           scope: keyword.other.while.razor punctuation.section.block.end.razor
           pop: true
@@ -423,7 +423,7 @@ contexts:
         - match: \{
           scope: meta.block.razor keyword.other.expression.razor punctuation.section.block.begin.razor
           set:
-            - meta_content_scope: meta.block.cs source.cs
+            - meta_content_scope: source.cs.embedded.razor meta.block.cs
             - match: \}
               scope: meta.block.razor keyword.other.expression.razor punctuation.section.block.end.razor
               pop: true
