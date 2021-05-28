@@ -3,7 +3,7 @@
 
 name: Razor C#
 file_extensions: cshtml
-scope: embedding.razor.cs text.html.basic
+scope: source.razor text.html.basic
 version: 2
 
 variables:
