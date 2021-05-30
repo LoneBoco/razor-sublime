@@ -206,7 +206,7 @@ contexts:
       scope: keyword.other.codeblock.razor
       captures:
         1: keyword.control.conditional.if.razor
-      push: [scope:source.cs#else_block, razor_if_block, scope:source.cs#if_condition]
+      push: [razor_else_block, razor_if_block, scope:source.cs#if_condition]
       with_prototype:
         - include: html
 
@@ -354,6 +354,7 @@ contexts:
           pop: true
 
   # Modified to use customized code_block_in and to force opening brackets.
+  # Also colors the brackets with keyword.other.
   razor_if_block:
     - match: \{
       scope: meta.block.razor keyword.other.if.razor punctuation.section.block.begin.razor
@@ -366,6 +367,30 @@ contexts:
     - match: \S
       scope: invalid.illegal.expected.opening-bracket
       pop: true
+
+  razor_else_block:
+    - match: (else\s+if)\b\s*
+      captures:
+        1: keyword.control.conditional.elseif.cs
+      push: [razor_if_block, scope:source.cs#if_condition]
+    - match: (else)\s*
+      scope: keyword.other.else.razor keyword.control.conditional.else.razor
+      set:
+        - match: \s*(\{)
+          captures:
+            1: meta.block.razor keyword.other.else.razor punctuation.section.block.begin.razor
+          set:
+            - meta_content_scope: meta.block.razor
+            - match: \}
+              scope: meta.block.cs keyword.other.else.razor punctuation.section.block.end.razor
+              pop: true
+            - include: razor_code_block_in
+        - match: (?=\S)
+          set:
+            - include: razor_code_block_in
+    - match: (?=\S)
+      pop: true
+
   razor_switch_block:
     - match: \{
       scope: keyword.other.switch.razor punctuation.section.switch.begin.razor
