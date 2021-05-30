@@ -289,10 +289,10 @@ contexts:
         - include: html
 
     # @lock block.
-    - match: \B@(lock)\b
-      scope: keyword.other.lock.razor
+    - match: \B(@lock)\s*(\()\b
       captures:
         1: keyword.control.other.lock.razor
+        2: meta.group.cs punctuation.section.group.begin.razor
       push: [razor_expression_block, scope:source.cs#line_of_code]
       with_prototype:
         - include: html
