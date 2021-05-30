@@ -7,10 +7,10 @@ scope: source.razor text.html.basic
 version: 2
 
 variables:
-  unicode_char: '\\u[0-9a-fA-F]{,4}'
-  start_char: '(?:{{unicode_char}}|[A-Za-z_\p{L}])'
-  other_char: '(?:{{unicode_char}}|[A-Za-z_0-9\p{L}])'
-  name: '{{start_char}}{{other_char}}'
+  unicode_char: '(?:\\u\h{4}|\\U\h{8})'
+  start_char: '(?:{{unicode_char}}|[_\p{L}])'
+  other_char: '(?:{{unicode_char}}|[_0-9\p{L}])'
+  name: '{{start_char}}{{other_char}}*\b'
 
 contexts:
   prototype:
@@ -89,21 +89,21 @@ contexts:
 
   razor_block:
     # @model
-    - match: '\B(@model)\s+'
+    - match: '\B(@model)\b\s+'
       captures:
         1: keyword.other.model.razor
       push:
-        - match: ({{name}}*)(\.)
+        - match: ({{name}})(\.)
           captures:
             1: variable.other.razor
             2: punctuation.accessor.dot.razor
-        - match: ({{name}}+)
+        - match: ({{name}})
           scope: variable.other.type.razor support.type.razor
         - match: \s
           pop: true
 
     # @section block.
-    - match: '\B(@section)\s+({{name}}+)'
+    - match: '\B(@section)\b\s+({{name}})'
       captures:
         1: keyword.other.section.razor
         2: meta.section meta.toc-list
@@ -116,6 +116,74 @@ contexts:
               scope: keyword.other.section.razor punctuation.section.block.end
               pop: true
             - include: main
+
+    # @implements.
+    - match: \B(@implements)\b\s+({{name}})
+      captures:
+        1: keyword.other.implements.razor
+        2: entity.name.interface.cs
+      push:
+        - match: '$'
+          pop: true
+        - match: '<'
+          scope: meta.generic.cs punctuation.definition.generic.begin.cs
+          push: scope:source.cs#type_argument
+
+    # @inherits.
+    - match: \B(@inherits)\b\s+({{name}})
+      captures:
+        1: keyword.other.inherits.razor
+        2: entity.name.class.cs
+      push:
+        - match: '$'
+          pop: true
+        - match: '<'
+          scope: meta.generic.cs punctuation.definition.generic.begin.cs
+          push: scope:source.cs#type_argument
+
+    # @attribute
+    - match: \B(@attribute)\b\s+\[({{name}})\]
+      captures:
+        1: keyword.other.attribute.razor
+        2: entity.name.attribute.cs
+
+    # @preservewhitespace
+    - match: \B(@preservewhitespace)\b\s+\b(true|false)\b
+      captures:
+        1: keyword.other.preservewhitespace.razor
+        2: constant.language.cs
+
+    # @functions code block.
+    - match: \B@functions\b\s*(\{)
+      captures:
+        0: keyword.other.functions.razor
+        1: punctuation.section.block.begin
+      push:
+        - meta_content_scope: source.cs.embedded.razor
+        - match: '\}'
+          scope: keyword.other.codeblock.razor punctuation.section.block.end
+          pop: true
+        - include: scope:source.cs
+          apply_prototype: true
+      with_prototype:
+        - include: html
+
+    # namespace
+    - match: \B(@namespace)\b\s+
+      captures:
+        1: keyword.other.namespace.razor
+      push:
+        - meta_scope: meta.namespace.cs
+        - match: '(?={{name}})'
+          push:
+            - meta_content_scope: entity.name.namespace.cs
+            - match: '{{name}}'
+            - match: \.
+              scope: punctuation.separator.namespace.cs
+            - match: ''
+              pop: true
+        - match: (?=\S)
+          pop: true
 
     # @{} code block.
     - match: '\B@(\{)'
@@ -179,14 +247,14 @@ contexts:
       push: [razor_finally_block, razor_catch_expr, razor_try_block]
 
     # @using blocks.
-    - match: '\B(@(using))\s+{{name}}*\s*(=)\s*'
+    - match: '\B(@(using))\s+{{name}}\s*(=)\s*'
       captures:
         1: keyword.other.using.razor
         2: keyword.control.import.razor
         3: entity.name.type.razor
         4: storage.modifier.namespace.as.razor
       push: scope:source.cs#using_namespace
-    - match: '\B(@(using))\s+(static\b)?\s*{{name}}'
+    - match: '\B(@(using))\s+(static\b)?\s*({{name}})'
       captures:
         1: keyword.other.using.razor
         2: keyword.control.import.razor
@@ -243,8 +311,19 @@ contexts:
       with_prototype:
         - include: html
 
+    # Inline await expression.
+    - match: \B(@)(await)\s+\b
+      captures:
+        1: keyword.other.inline.razor
+        2: keyword.control.other.cs
+      push:
+        - meta_content_scope: source.cs.embedded.razor
+        - match: (?=[^{{name}}\.\(\)])
+          pop: true
+        - include: scope:source.cs#line_of_code_in
+
     # Inline expression.
-    - match: '@(?!if|for|foreach|do|while)'
+    - match: '@(?!if|for|foreach|do|while|await)'
       scope: keyword.other.inline.razor
       push:
         - meta_content_scope: source.cs.embedded.razor

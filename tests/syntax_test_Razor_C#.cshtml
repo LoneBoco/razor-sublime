@@ -69,15 +69,23 @@
     <p style="display: none;">Some test</p>
 }
 
+<p>@DateTime.Now</p>
+<p>@DateTime.IsLeapYear(2016)</p>
+
+<p>@await DoSomething("hello", "world")</p>
+
 <p>My email is example@example</p>
 <p>The book is ISBN@(isbnNumber)</p>
 <span>Escaped @@ symbol</span>
+
+<p>@(GenericMethod<int>())</p>
 
 @if (true) {
     var test = true;
 }
 
-@if (DateTime.Now.Year == 2010) {
+@if (DateTime.Now.Year == 2010)
+{
 
     <text>
         if year is 2010 then print this <br/>
@@ -88,6 +96,18 @@
     @* BUG: The style should highlight but it doesn't.  Might not be fixable. *@
     <p @if (true) { <text>style="display: none"</text> }>Test</p>
 }
+else if (DateTime.Now.Year == 2011)
+{
+    var x = true;
+}
+else
+{
+    var t = false;
+    <p>Not 2010.</p>
+    var i = true;
+}
+
+<p style="display: none">Test</p>
 
 @switch (DateTime.Now.Year)
 {
@@ -103,11 +123,6 @@
 @while (true)
 {
     var t = true;
-}
-
-@while (true)
-{
-    var t = true;
     <p>LOOP</p>
 }
 
@@ -117,6 +132,20 @@
     <p>LOOP</p>
 }
 while(true)
+
+@foreach (var person in people)
+{
+    <p>Name: @person.Name</p>
+    <p>Age: @person.Age</p>
+}
+
+@using (Html.BeginForm())
+{
+    <div>
+        Email: <input type="email" id="Email" value="">
+        <button>Register</button>
+    </div>
+}
 
 @try
 {
@@ -139,6 +168,25 @@ catch (Exception e)
 finally
 {
     var t = true;
+}
+
+@lock (SomeLock)
+{
+    // Do critical section work
+}
+
+
+@implements IDisposable
+@inherits CustomRazorPage<TModel>
+@attribute [Authorize]
+@namespace Your.Namespace.Here
+@preservewhitespace true
+
+@functions {
+    public string GetHello()
+    {
+        return "Hello";
+    }
 }
 
 @section footer
