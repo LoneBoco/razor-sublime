@@ -247,11 +247,11 @@ contexts:
       push: [razor_finally_block, razor_catch_expr, razor_try_block]
 
     # @using blocks.
-    - match: '\B(@(using))\s+{{name}}\s*(=)\s*'
+    - match: '\B(@(using))\s+({{name}})\s*(=)\s*'
       captures:
         1: keyword.other.using.razor
         2: keyword.control.import.razor
-        3: entity.name.type.razor
+        3: meta.path.cs
         4: storage.modifier.namespace.as.razor
       push: scope:source.cs#using_namespace
     - match: '\B(@(using))\s+(static\b)?\s*({{name}})'
@@ -259,7 +259,7 @@ contexts:
         1: keyword.other.using.razor
         2: keyword.control.import.razor
         3: storage.modifier.namespace.razor
-        4: variable.namespace.razor
+        4: meta.path.cs
       push: scope:source.cs#using_namespace
     - match: '\B(@(using))\s*(\()'
       captures:
