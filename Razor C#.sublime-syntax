@@ -44,6 +44,17 @@ contexts:
     - match: '\*@'
       scope: invalid.illegal.stray-comment-end.razor
 
+  cs-type:
+    - match: ({{name}})(\.)
+      captures:
+        1: variable.other.razor
+        2: punctuation.accessor.dot.razor
+    - match: ({{name}})
+      scope: variable.other.type.razor support.type.razor
+    - match: '<'
+      scope: meta.generic.cs punctuation.definition.generic.begin.cs
+      push: scope:source.cs#type_argument
+
   # Used to identify embedded HTML content inside C# source.
   html:
     - include: comments
@@ -93,12 +104,7 @@ contexts:
       captures:
         1: keyword.other.model.razor
       push:
-        - match: ({{name}})(\.)
-          captures:
-            1: variable.other.razor
-            2: punctuation.accessor.dot.razor
-        - match: ({{name}})
-          scope: variable.other.type.razor support.type.razor
+        - include: cs-type
         - match: \s
           pop: true
 
@@ -118,34 +124,58 @@ contexts:
             - include: main
 
     # @implements.
-    - match: \B(@implements)\b\s+({{name}})
+    - match: \B(@implements)\b\s+
       captures:
         1: keyword.other.implements.razor
         2: entity.name.interface.cs
       push:
+        - include: cs-type
         - match: '$'
           pop: true
-        - match: '<'
-          scope: meta.generic.cs punctuation.definition.generic.begin.cs
-          push: scope:source.cs#type_argument
 
     # @inherits.
-    - match: \B(@inherits)\b\s+({{name}})
-      captures:
-        1: keyword.other.inherits.razor
-        2: entity.name.class.cs
+    - match: \B(@inherits)\b\s+
+      scope: keyword.other.inherits.razor
       push:
-        - match: '$'
+        - include: cs-type
+        - match: $
           pop: true
-        - match: '<'
-          scope: meta.generic.cs punctuation.definition.generic.begin.cs
-          push: scope:source.cs#type_argument
+
+    # @inject
+    - match: \B(@inject)\b\s+
+      scope: keyword.other.inject.razor
+      push:
+        - include: cs-type
+        - match: $
+          pop: true
+
+    # @page
+    - match: \B@page\b
+      scope: keyword.other.page.razor
+      push:
+        - match: $
+          pop: true
+        - match: (\").*(\")
+          captures:
+            0: string.quoted.double.cs
+            1: punctuation.definition.string.begin.cs
+            2: punctuation.definition.string.begin.cs
+
+    # @layout
+    - match: \B(@layout)\b\s+
+      scope: keyword.other.layout.razor
+      push:
+        - include: cs-type
+        - match: $
+          pop: true
 
     # @attribute
-    - match: \B(@attribute)\b\s+\[({{name}})\]
-      captures:
-        1: keyword.other.attribute.razor
-        2: entity.name.attribute.cs
+    - match: \B(@attribute)\b\s+
+      scope: keyword.other.attribute.razor
+      push:
+        - match: $
+          pop: true
+        - include: scope:source.cs#attribute
 
     # @preservewhitespace
     - match: \B(@preservewhitespace)\b\s+\b(true|false)\b
@@ -153,8 +183,8 @@ contexts:
         1: keyword.other.preservewhitespace.razor
         2: constant.language.cs
 
-    # @functions code block.
-    - match: \B@functions\b\s*(\{)
+    # @functions/code code block.
+    - match: \B@(functions|code)\b\s*(\{)
       captures:
         0: keyword.other.functions.razor
         1: punctuation.section.block.begin
@@ -168,7 +198,21 @@ contexts:
       with_prototype:
         - include: html
 
-    # namespace
+    # @addTagHelper / @removeTagHelper
+    - match: \B@(addTagHelper|removeTagHelper)\b\s+
+      scope: keyword.other.taghelper.razor
+      push:
+        - meta_content_scope: entity.name.fqn.razor
+        - match: $
+          pop: true
+
+    # @tagHelperPrefix
+    - match: \B(@tagHelperPrefix)\b\s+({{name}}:?)
+      captures:
+        1: keyword.other.taghelper.razor
+        2: entity.name.taghelper.prefix.razor
+
+    # @namespace
     - match: \B(@namespace)\b\s+
       captures:
         1: keyword.other.namespace.razor

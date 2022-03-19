@@ -177,16 +177,28 @@ finally
 
 
 @implements IDisposable
-@inherits CustomRazorPage<TModel>
+@implements namespace.IDisposable
+@inherits Namespace.CustomRazorPage<TModel>
 @attribute [Authorize]
 @namespace Your.Namespace.Here
 @preservewhitespace true
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@removeTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@tagHelperPrefix th:
+@inject StatisticsService Namespace.Stats StatsService
+@page
+@page "/resource/{text?}"
+@page "{id:int}"
+@layout DoctorWhoLayout
 
 @functions {
     public string GetHello()
     {
         return "Hello";
     }
+}
+@code {
+    public string MyString;
 }
 
 @section footer
