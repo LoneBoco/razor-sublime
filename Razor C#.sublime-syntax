@@ -3,7 +3,7 @@
 
 name: Razor C#
 file_extensions: cshtml
-scope: source.razor text.html.basic
+scope: source.razor embed.text.html
 version: 2
 
 variables:
@@ -12,9 +12,19 @@ variables:
   other_char: '(?:{{unicode_char}}|[_0-9\p{L}])'
   name: '{{start_char}}{{other_char}}*\b'
 
+# This syntax uses embed.text.html and embed.source.cs as scope names.
+# While not considered proper, this is done to ensure comments work.
+# Without it, comments that start in one language and end in the other won't work properly.
+# This is due to conflicts with the built-in comments assigned to text.html.basic and source.cs.
+
 contexts:
   prototype:
     - include: comments
+
+  # Default to HTML but add in our Razor triggers for Razor directives or C# code.
+  main:
+    - include: razor
+    - include: scope:text.html.basic
 
   comments:
     # E-mail addresses have the @ symbol but don't activate code.
@@ -23,24 +33,14 @@ contexts:
     # Match an escaped @.
     - match: '@@'
       scope: constant.character.escape
-    # Attempt to fix the scopes so toggle comment works.
-    # - match: '^\s*(?=@\*)'
-      # scope: meta.embedded.html
     # Match the start of our comment.
     - match: '@\*'
       scope: punctuation.definition.comment.begin.razor
       push:
-        # We push meta.embedded.html so toggle comment works everywhere.
-        - meta_scope: meta.embedded.html comment.block.razor
+        - meta_scope: comment.block.razor
         - match: '\*@'
           scope: punctuation.definition.comment.end.razor
-          set:
-            # Fix the scopes so toggle comment works.
-            - match: '\n'
-              scope: meta.embedded.html
-              pop: true
-            - match: '.'
-              pop: true
+          pop: true
     - match: '\*@'
       scope: invalid.illegal.stray-comment-end.razor
 
@@ -64,14 +64,16 @@ contexts:
       push: html_line
       with_prototype:
         - include: razor
-    - match: '\s*(?=<)'
+    - match: '(\s+|^)(?=<)'
+      scope: source.razor embed.text.html
       push: html_line
       with_prototype:
         - include: razor
 
+  # A single line of HTML from within C# source.
   html_line:
-    - meta_content_scope: meta.embedded.html
-    - clear_scopes: 1
+    - meta_content_scope: source.razor embed.text.html
+    - clear_scopes: true
     - match: '^'
       pop: true
     - include: scope:text.html.basic
@@ -81,17 +83,14 @@ contexts:
     - match: '\<text\>'
       scope: keyword.other.text.begin.razor
       set:
-        - clear_scopes: 2
-        - meta_scope: meta.embedded.html
+        - clear_scopes: true
+        - meta_scope: source.razor embed.text.html
         - match: '<\/text>'
           scope: keyword.other.text.razor.end
           pop: true
         - include: main
 
-  main:
-    - include: razor
-    - include: scope:text.html.basic
-
+  # Used to initiate C# code or a Razor directive.
   razor:
     - include: text
     - include: razor_block
@@ -236,7 +235,8 @@ contexts:
         0: keyword.other.codeblock.razor
         1: punctuation.section.block.begin.razor
       push:
-        - meta_content_scope: source.cs.embedded.razor
+        - meta_content_scope: source.razor embed.source.cs
+        - clear_scopes: true
         - match: '\}'
           scope: keyword.other.codeblock.razor punctuation.section.block.end.razor
           pop: true
@@ -344,11 +344,14 @@ contexts:
 
   # Razor operators that work in an single-line fashion.
   inline_context:
+    - include: comments
+
     # Inline multi-token code.
     - match: '@\('
-      scope: keyword.other.inline.begin.razor
+      scope: source.razor keyword.other.inline.begin.razor
       push:
-        - meta_content_scope: source.cs.embedded.razor
+        - meta_content_scope: source.razor embed.source.cs
+        - clear_scopes: true
         - match: '\)'
           scope: keyword.other.inline.end.razor
           pop: true
@@ -359,19 +362,22 @@ contexts:
     # Inline await expression.
     - match: \B(@)(await)\s+\b
       captures:
+        0: source.razor
         1: keyword.other.inline.razor
         2: keyword.control.other.cs
       push:
-        - meta_content_scope: source.cs.embedded.razor
+        - meta_content_scope: source.razor embed.source.cs
+        - clear_scopes: true
         - match: (?=[^{{name}}\.\(\)])
           pop: true
         - include: scope:source.cs#line_of_code_in
 
     # Inline expression.
     - match: '@(?!if|for|foreach|do|while|await)'
-      scope: keyword.other.inline.razor
+      scope: source.razor keyword.other.inline.razor
       push:
-        - meta_content_scope: source.cs.embedded.razor
+        - meta_content_scope: source.razor embed.source.cs
+        - clear_scopes: true
         - match: (?=[^{{name}}\.\(\)])
           pop: true
         - include: scope:source.cs#line_of_code_in
@@ -393,7 +399,8 @@ contexts:
     - match: '@:'
       scope: keyword.other.embed.html.razor
       push:
-        - meta_scope: meta.embedded.html
+        - meta_scope: source.razor embed.text.html
+        - clear_scopes: true
         - include: main
         - match: \n
           pop: true
@@ -404,7 +411,7 @@ contexts:
     - match: \{
       scope: meta.block.razor keyword.other.if.razor punctuation.section.block.begin.razor
       set:
-        - meta_content_scope: source.cs.embedded.razor meta.block.cs
+        - meta_content_scope: embed.source.cs meta.block.cs
         - match: \}
           scope: meta.block.razor keyword.other.if.razor punctuation.section.block.end.razor
           pop: true
@@ -440,7 +447,7 @@ contexts:
     - match: \{
       scope: keyword.other.switch.razor punctuation.section.block.begin.razor
       set:
-        - meta_content_scope: source.cs.embedded.razor
+        - meta_content_scope: embed.source.cs
         - match: \}
           scope: keyword.other.switch.razor punctuation.section.block.end.razor
           pop: true
@@ -474,7 +481,7 @@ contexts:
       - match: \{
         scope: keyword.other.for.razor punctuation.section.block.begin.razor
         set:
-          - meta_content_scope: source.cs.embedded.razor meta.block.loop.cs
+          - meta_content_scope: embed.source.cs meta.block.loop.cs
           - match: \}
             scope: keyword.other.for.razor punctuation.section.block.end.razor
             pop: true
@@ -486,7 +493,7 @@ contexts:
     - match: \{
       scope: keyword.other.try.razor punctuation.section.block.begin.razor
       set:
-        - meta_content_scope: source.cs.embedded.razor
+        - meta_content_scope: embed.source.cs
         - match: \}
           scope: keyword.other.try.razor punctuation.section.block.end.razor
           pop: true
@@ -520,7 +527,7 @@ contexts:
       scope: keyword.other.trycatch.razor punctuation.section.block.begin.razor
       set:
         - meta_scope: meta.block.trycatch.cs
-        - meta_content_scope: source.cs.embedded.razor
+        - meta_content_scope: embed.source.cs
         - match: \}
           scope: keyword.other.trycatch.razor punctuation.section.block.end.razor
           pop: true
@@ -543,7 +550,7 @@ contexts:
       - match: \{
         scope: keyword.other.using.razor punctuation.section.block.begin.razor
         set:
-          - meta_content_scope: source.cs.embedded.razor meta.block.cs
+          - meta_content_scope: embed.source.cs meta.block.cs
           - match: \}
             scope: keyword.other.using.razor punctuation.section.block.end.razor
             pop: true
@@ -556,7 +563,7 @@ contexts:
     - match: \{
       scope: keyword.other.while.razor punctuation.section.block.begin.razor
       set:
-        - meta_content_scope: source.cs.embedded.razor meta.block.cs
+        - meta_content_scope: embed.source.cs meta.block.cs
         - match: '\}'
           scope: keyword.other.while.razor punctuation.section.block.end.razor
           pop: true
@@ -572,7 +579,7 @@ contexts:
         - match: \{
           scope: meta.block.razor keyword.other.expression.razor punctuation.section.block.begin.razor
           set:
-            - meta_content_scope: source.cs.embedded.razor meta.block.cs
+            - meta_content_scope: embed.source.cs meta.block.cs
             - match: \}
               scope: meta.block.razor keyword.other.expression.razor punctuation.section.block.end.razor
               pop: true

@@ -25,8 +25,8 @@
 @{
     #region Test Region
     string[] teamMembers = {"Matt", "Joanne", "Robert", "Nancy"};
-    <p>The number of names in the teamMembers array: @teamMembers.Length</p>
-    <p>The number of names in the teamMembers array: @teamMembers.Length </p>
+    <p>The number of na@* mes in the teamMembers array: @teamMembers.Length</p>
+    <p>The number of na *@mes in the teamMembers array: @teamMembers.Length </p>
     @:Raw HTML line test @teamMembers.Length
     <p>Robert is now in position: @Array.IndexOf(teamMembers, "Robert")</p>
     #endregion
@@ -47,6 +47,8 @@
 }
 
 @{
+<p></p>
+
     // This doesn't work right now.  :(  Probably won't ever work.
     Func<dynamic, object> b = @<strong>@item</strong>;
 }

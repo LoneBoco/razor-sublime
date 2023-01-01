@@ -4,7 +4,7 @@
 	<key>name</key>
 	<string>Comments</string>
 	<key>scope</key>
-	<string>comment.block.razor, source.razor.cs, meta.embedded.html</string>
+	<string>source.razor</string>
 	<key>settings</key>
 	<dict>
 		<key>shellVariables</key>
