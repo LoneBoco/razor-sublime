@@ -1,9 +1,13 @@
 %YAML 1.2
 ---
+# http://www.sublimetext.com/docs/syntax.html
 
 name: Razor C#
-file_extensions: cshtml
 scope: source.razor embed.text.html
+
+file_extensions:
+  - cshtml
+
 version: 2
 
 variables:
