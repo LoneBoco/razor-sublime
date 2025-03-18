@@ -5,22 +5,22 @@
 		<key>name</key>
 		<string>Comments</string>
 		<key>scope</key>
-		<string>source.razor</string>
+		<string>source.razor,embed.text.html</string>
 		<key>settings</key>
 		<dict>
 			<key>shellVariables</key>
 			<array>
 				<dict>
 					<key>name</key>
-					<string>TM_COMMENT_START_2</string>
+					<string>TM_COMMENT_START</string>
 					<key>value</key>
-					<string>@* </string>
+					<string><![CDATA[@* ]]></string>
 				</dict>
 				<dict>
 					<key>name</key>
-					<string>TM_COMMENT_END_2</string>
+					<string>TM_COMMENT_END</string>
 					<key>value</key>
-					<string> *@</string>
+					<string><![CDATA[ *@]]></string>
 				</dict>
 			</array>
 		</dict>

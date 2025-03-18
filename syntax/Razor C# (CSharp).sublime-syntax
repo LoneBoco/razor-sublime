@@ -41,6 +41,7 @@ contexts:
 
   code_block_in:
     - meta_prepend: true
+    - meta_scope: meta.block.cs
     # Pop at the end of the block so we transition back to HTML correctly.
     - match: '\}'
       scope: keyword.other.block.razor punctuation.block.end.razor
