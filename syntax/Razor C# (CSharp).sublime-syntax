@@ -1,0 +1,134 @@
+%YAML 1.2
+---
+name: Razor C#
+scope: embed.source.cs.razor
+hidden: true
+
+extends: Packages/C#/C#.sublime-syntax
+
+#############################
+
+contexts:
+
+  prototype:
+    - meta_prepend: true
+    - include: razor-comments
+
+  razor-comments:
+    # E-mail addresses have the @ symbol but don't activate code.
+    - match: '[\+-.\w]+@[-a-z0-9]+(\.[-a-z0-9]+)*'
+      scope: meta.email
+    # Match an escaped @.
+    - match: '@@'
+      scope: constant.character.escape
+    # Match the start of our comment.
+    - match: '@\*'
+      scope: punctuation.definition.comment.begin.razor
+      push:
+        - meta_scope: comment.block.razor
+        - match: '\*@'
+          scope: punctuation.definition.comment.end.razor
+          pop: 1
+    - match: '\*@'
+      scope: invalid.illegal.stray-comment-end.razor
+
+  # Used for @typeparam since it allows where constraints on the generic type.
+  # Embed target with an end-of-line escape.
+  razor_type_with_constraint:
+    - match: '{{name}}'
+      scope: entity.name.interface.cs
+      set: [data_type_constraint, data_type_parameter]
+
+  code_block_in:
+    - meta_prepend: true
+    # Pop at the end of the block so we transition back to HTML correctly.
+    - match: '\}'
+      scope: keyword.other.block.razor punctuation.block.end.razor
+      pop: 1
+    # Support <text></text>.
+    - match: '(<)(text)(>)'
+      captures:
+        1: punctuation.definition.tag.begin.html.razor
+        2: entity.name.tag.html
+        3: punctuation.definition.tag.end.html.razor
+      embed: scope:source.razor
+      embed_scope: embed.text.html
+      escape: '(</)(text)(>)'
+      escape_captures:
+        1: punctuation.definition.tag.begin.html.razor
+        2: entity.name.tag.html
+        3: punctuation.definition.tag.end.html.razor
+    # HTML context switching.
+    - match: '(?=<)'
+      push: scope:source.razor#tag-html-embed
+    - match: '\@\:'
+      scope: keyword.other.embed.html.razor
+      embed: scope:source.razor
+      escape: '$\n?'
+
+  # Allows HTML context switching and Razor comments.
+  line_of_code_in:
+    - meta_prepend: true
+    - match: '\@(?=<)'
+      scope: keyword.other.embed.html.razor
+      push: scope:source.razor#tag-html-embed
+
+  # Variant of line_of_code_in that pops on HTML or newlines.
+  razor_line_of_code_in:
+    - meta_prepend: true
+    - match: '(?=<)'
+      pop: 1
+    - match: '$\n?'
+      pop: 1
+    - include: line_of_code_in
+
+  # Variant of line_of_code_in that pops on string end or newlines.
+  # Used for data binding in Razor components.
+  razor_single_quote_line_of_code_in:
+    - meta_prepend: true
+    - include: razor-comments
+    - match: \'
+      scope: string.quoted.single.html punctuation.definition.string.end.html
+      pop: 1
+    - match: '$\n?'
+      pop: 1
+    - include: line_of_code_in
+  razor_double_quote_line_of_code_in:
+    - meta_prepend: true
+    - include: razor-comments
+    - match: '\"'
+      scope: string.quoted.double.html punctuation.definition.string.end.html
+      pop: 1
+    - match: '$\n?'
+      pop: 1
+    - include: line_of_code_in
+
+  # Variant of line_of_code_in that handles just an expression and pops on ) or newlines.
+  razor_expression_in:
+    - meta_prepend: true
+    - include: razor-comments
+    - match: '\)'
+      scope: keyword.other.inline.end.razor
+      pop: 1
+    - match: '$\n?'
+      pop: 1
+    - include: line_of_code_in
+
+  # Enables use of templated Razor delegates.
+  variables_declaration:
+    - meta_prepend: true
+    - include: razor-comments
+    - match: '='
+      scope: keyword.operator.assignment.variable.cs
+      push:
+        - match: '\@(?=<)'
+          scope: keyword.other.embed.html.razor
+          push: scope:source.razor#tag-html-nested-start
+        - match: (?=;|,)
+          pop: 1
+        - match: (?=\{)
+          push:
+            - match: (?=[^,\s{}])
+              pop: 1
+            - include: initializer_constructor
+        - include: line_of_code_in

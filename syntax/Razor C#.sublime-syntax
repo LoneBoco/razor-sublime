@@ -1,0 +1,160 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/syntax.html
+
+name: Razor C#
+scope: source.razor
+version: 2
+
+extends: Packages/HTML/HTML.sublime-syntax
+
+file_extensions:
+  - cshtml
+  - razor
+
+variables:
+
+  razor_keywords: |-
+    (?xi:
+      \( | \{ | \* | \<
+    | attribute | functions | implements | inherits | inject | namespace | page
+    | addTagHelper | removeTagHelper | tagHelperPrefix | model | section
+    | attributes | bind | bind:culture | formname | on | key | ref | typeparam | rendermode | preservewhitespace | layout | code
+    | if | switch | for | foreach | while | do | using | try | lock
+    )
+
+  razor_html_default: '(?xi: section)'
+
+# This syntax uses embed.text.html and embed.source.cs as scope names.
+# While not considered proper, this is done to ensure comments work.
+# Without it, comments that start in one language and end in the other won't work properly.
+# This is due to conflicts with the built-in comments assigned to text.html.basic and source.cs.
+
+#############################
+
+contexts:
+
+  main:
+    - meta_prepend: true
+    - meta_scope: embed.text.html
+    - include: razor-comments
+
+  # Used to apply a meta scope to the C# syntax.
+  immediately-pop-cs:
+    - meta_scope: embed.source.cs
+    - match: ''
+      pop: 1
+
+  razor-comments:
+    # E-mail addresses have the @ symbol but don't activate code.
+    - match: '[\+-.\w]+@[-a-z0-9]+(\.[-a-z0-9]+)*'
+      scope: meta.email
+    # Match an escaped @.
+    - match: '@@'
+      scope: constant.character.escape
+    # Match the start of our comment.
+    - match: '@\*'
+      scope: punctuation.definition.comment.begin.razor
+      push:
+        - meta_scope: comment.block.razor
+        - match: '\*@'
+          scope: punctuation.definition.comment.end.razor
+          pop: 1
+    - match: '\*@'
+      scope: invalid.illegal.stray-comment-end.razor
+
+  razor-keywords:
+    - meta_scope: embed.source.cs
+    # Razor keywords that keep the block in HTML mode.
+    - match: '\@(?={{razor_html_default}})'
+      scope: keyword.other.reserved.razor
+      set: scope:source.razor.engine#keyword
+    # Razor keywords that switch to C# default.
+    - match: '\@(?={{razor_keywords}})'
+      scope: keyword.other.reserved.razor
+      push: [immediately-pop-cs, scope:source.razor.engine#keyword]
+    # Inline C# expressions.
+    - match: '\@'
+      scope: keyword.other.expression.razor
+      push: [immediately-pop-cs, scope:embed.source.cs.razor#razor_line_of_code_in]
+
+  # Enable Razor context switching.
+  tag-html:
+    - meta_scope: embed.text.html
+    - meta_prepend: true
+    - include: razor-keywords
+
+  # Special nested syntax for templated delegates.
+  tag-html-nested-start:
+    - meta_scope: embed.text.html
+    - include: razor-keywords
+    - match: (<)({{html_block_tags}})
+      captures:
+        1: punctuation.definition.tag.begin.html
+        2: entity.name.tag.block.any.html
+      set: [tag-html-nested-end, block-any-tag-content]
+    - match: (<)({{html_inline_tags}})
+      captures:
+        1: punctuation.definition.tag.begin.html
+        2: entity.name.tag.inline.any.html
+      set: [tag-html-nested-end, inline-any-tag-content]
+    - match: (<)((?i:form|fieldset){{tag_name_break}})
+      captures:
+        1: punctuation.definition.tag.begin.html
+        2: entity.name.tag.block.form.html
+      set: [tag-html-nested-end, block-forms-tag-content]
+    - match: (<)({{html_forms_tags}})
+      captures:
+        1: punctuation.definition.tag.begin.html
+        2: entity.name.tag.inline.form.html
+      set: [tag-html-nested-end, inline-forms-tag-content]
+    - match: (<)({{html_table_tags}})
+      captures:
+        1: punctuation.definition.tag.begin.html
+        2: entity.name.tag.inline.table.html
+      set: [tag-html-nested-end, table-tag-content]
+
+  # Special nested syntax for templated delegates.
+  tag-html-nested-end:
+    - meta_scope: embed.text.html
+    - include: razor-keywords
+    - match: '(</)({{tag_name}})(>)'
+      captures:
+        1: punctuation.definition.tag.begin.html
+        2: entity.name.tag.block.any.html
+        3: punctuation.definition.tag.end.html
+      pop: 1
+    - match: '(?=<{{tag_name_start}})'
+      push: tag-html-nested-start
+
+  # Properly pop back to C# mode when we encounter an end tag (handled in tag-end-razor)
+  tag-html-embed:
+    - meta_scope: embed.text.html
+    - include: razor-comments
+    - match: '(</)({{html_block_tags}}|{{html_inline_tags}})'
+      captures:
+        1: punctuation.definition.tag.begin.html
+        2: entity.name.tag.block.any.html
+      push:
+        # tag-end -> tag-end-razor
+        - include: tag-end-razor
+        - include: block-any-tag-content
+    - include: tag-html
+
+  # Pop 2 to get us back to C#.
+  tag-end-razor:
+    - match: '>'
+      scope: punctuation.definition.tag.end.html
+      pop: 2
+
+  # Special context to properly get us out of @section blocks.
+  razor-section-block:
+    - match: '\}'
+      scope: keyword.other.block.razor punctuation.block.end.razor
+      pop: 2
+    - include: main
+
+  # Used to identify Razor commands in HTML element attributes.
+  tag-attributes:
+    - meta_prepend: true
+    - include: razor-keywords

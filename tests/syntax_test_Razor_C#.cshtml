@@ -1,12 +1,75 @@
+@attribute [Authorize]
 
-@using MyApp.Models
+@functions {
+    public string GetHello()
+    {
+        return "Hello";
+    }
+}
+
+@implements IDisposable
+@implements namespace.IDisposable
+
+@inherits Namespace.CustomRazorPage<TModel>
+@inject IMyService MyService
+@namespace Your.Namespace.Here
+
+@page
+@page "/resource/{text?}"
+@page "{id:int}"
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper MyAssembly*, MyAssembly.Whatever
+@removeTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@removeTagHelper MyAssembly*, MyAssembly.Whatever
+@tagHelperPrefix th:
 
 @model MyApp.Models.MyModel
+@using MyApp.Models
+
+@preservewhitespace true
+@preservewhitespace
+@preservewhitespace false
+@rendermode InteractiveWebAssembly
+
+@layout DoctorWhoLayout
+
+@code { public string MyString; }
+@code{ public string MyString; }
+@code
+{
+    public string MyString;
+}
+
+@typeparam TEntity
+@typeparam TEntity where TEntity : IEntity
+
+<p @attributes="Stuff"></p>
+<label>InputValue:<input @bind="InputValue" @bind:culture="new CultureInfo("th-TH", false)" /></label>
+
+<form method="post" @formname="starship-plain-form" @onsubmit="Submit" @onclick:preventDefault>
+    <AntiforgeryToken />
+    <ReferenceChild @ref="childComponent1" @rendermode='InteractiveAuto' />
+    <div>
+        <label>
+            Identifier:
+            <InputText @bind-Value="Model!.Id" />
+        </label>
+    </div>
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+</form>
 
 @section test {
 
+    <text>
+        Some stuff
+    </text>
     <p>Test</p>
-
+    <div>
+        <p>Some stuff</p>
+    </div>
 }
 
 @section header {
@@ -20,6 +83,10 @@
     @if (test == 1) {
         int i = a;
     }
+
+    @using (var service = GetService()) {
+        int i = a;
+    }
 }
 
 @{
@@ -27,8 +94,11 @@
     string[] teamMembers = {"Matt", "Joanne", "Robert", "Nancy"};
     <p>The number of na@* mes in the teamMembers array: @teamMembers.Length</p>
     <p>The number of na *@mes in the teamMembers array: @teamMembers.Length </p>
+    <p>The number of names in the teamMembers array: @teamMembers.Length</p>
+    <p>The number of names in the teamMembers array: @teamMembers.Length </p>
     @:Raw HTML line test @teamMembers.Length
     <p>Robert is now in position: @Array.IndexOf(teamMembers, "Robert")</p>
+    My.Namespace.Var i = 0;
     #endregion
 
     foreach (var name in teamMembers)
@@ -47,9 +117,19 @@
 }
 
 @{
-<p></p>
+    Func<dynamic, object> petTemplate = @<p>You have a pet named <strong>@item.Name</strong>.</p>;
 
-    // This doesn't work right now.  :(  Probably won't ever work.
+    var pets = new List<Pet>
+    {
+        new Pet { Name = "Rin Tin Tin" },
+        new Pet { Name = "Mr. Bigglesworth" },
+        new Pet { Name = "K-9" }
+    };
+}
+
+@{
+<p style="display: none;" class='whatever'></p>
+    var c = @<p>My paragraph</p>;
     Func<dynamic, object> b = @<strong>@item</strong>;
 }
 
@@ -95,7 +175,7 @@
         the date: @DateTime.Now
     </text>
 
-    @* BUG: The style should highlight but it doesn't.  Might not be fixable. *@
+    @* BUG: The style should highlight but it doesn't.  Most likely not fixable. *@
     <p @if (true) { <text>style="display: none"</text> }>Test</p>
 }
 else if (DateTime.Now.Year == 2011)
@@ -175,38 +255,4 @@ finally
 @lock (SomeLock)
 {
     // Do critical section work
-}
-
-
-@implements IDisposable
-@implements namespace.IDisposable
-@inherits Namespace.CustomRazorPage<TModel>
-@attribute [Authorize]
-@namespace Your.Namespace.Here
-@preservewhitespace true
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@removeTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@tagHelperPrefix th:
-@inject StatisticsService Namespace.Stats StatsService
-@page
-@page "/resource/{text?}"
-@page "{id:int}"
-@layout DoctorWhoLayout
-
-@functions {
-    public string GetHello()
-    {
-        return "Hello";
-    }
-}
-@code { public string MyString; }
-@code{ public string MyString; }
-@code
-{
-    public string MyString;
-}
-
-@section footer
-{
-    <p>Footer</p>
 }
