@@ -23,9 +23,17 @@ contexts:
     - match: .
       pop: 1
 
-  # Pop at the end of the line.
+  # Pop when a certain goal is reached.
   end-of-line:
     - match: $\n?
+      pop: 1
+  end-single-quoted:
+    - match: \'
+      scope: string.quoted.single.html punctuation.definition.string.end.html
+      pop: 1
+  end-double-quoted:
+    - match: \"
+      scope: string.quoted.double.html punctuation.definition.string.end.html
       pop: 1
 
   # Insert a namespace.
@@ -80,11 +88,11 @@ contexts:
       set: [scope:embed.source.cs.razor#using_block, scope:embed.source.cs.razor#line_of_code]
 
     - match: '\b(?={{razor_keywords_expression_block}})\b'
-      scope: keyword.declaration.expression.razor
+      scope: keyword.other.expression.razor
       set: scope:embed.source.cs.razor#line_of_code
 
     - match: '\b(functions|code)\b'
-      scope: keyword.declaration.code.block.razor
+      scope: keyword.other.code.block.razor
       set: cs-block
 
     - match: '(?=\{)'
@@ -96,7 +104,7 @@ contexts:
 
   general-directive:
     - match: '\b(attribute)\b\s+'
-      scope: keyword.declaration.attribute.razor
+      scope: keyword.other.attribute.razor
       pop: 1
       embed: scope:embed.source.cs.razor#attribute
       escape: \]
@@ -104,37 +112,37 @@ contexts:
         0: punctuation.definition.annotation.end.cs
 
     - match: '\b(implements)\b\s+'
-      scope: keyword.declaration.implements.razor
+      scope: keyword.other.implements.razor
       set: cs-type
 
     - match: '\b(inherits)\b\s+'
-      scope: keyword.declaration.inherits.razor
+      scope: keyword.other.inherits.razor
       set: cs-variable
 
     - match: '\b(inject)\b\s+'
-      scope: keyword.declaration.inject.razor
+      scope: keyword.other.inject.razor
       set: [cs-variable, cs-interface]
 
     - match: '\b(namespace)\b\s+'
-      scope: keyword.declaration.namespace.razor
+      scope: keyword.other.namespace.razor
       pop: 1
       embed: scope:embed.source.cs.razor#namespace_declaration_name
       escape: (?=\s|$\n?)
 
     - match: '\b(page)\b\s+'
-      scope: keyword.declaration.page.razor
+      scope: keyword.other.page.razor
       set:
         - include: scope:embed.source.cs.razor#strings
         - match: $\n?
           pop: 1
 
     - match: '\b(using)\b\s+'
-      scope: keyword.declaration.using.razor
+      scope: keyword.other.using.razor
       set: cs-namespace
 
   mvc-directive:
     - match: '\b(addTagHelper|removeTagHelper)\b\s+'
-      scope: keyword.declaration.taghelper.razor
+      scope: keyword.other.taghelper.razor
       set:
         - include: end-of-line
         - match: '\*'
@@ -150,19 +158,19 @@ contexts:
           escape: (?=\*|,|\s|$\n?)
 
     - match: '\b(tagHelperPrefix)\b\s+'
-      scope: keyword.declaration.taghelper.razor
+      scope: keyword.other.taghelper.razor
       set:
         - match: .+
           scope: entity.name.tag.prefix.razor
         - include: end-of-line
 
     - match: '\b(model)\b\s+'
-      scope: keyword.declaration.model.razor
+      scope: keyword.other.model.razor
       set: cs-variable
 
     - match: '\b(section)\b\s+({{name_normal}})'
       captures:
-        1: keyword.declaration.section.razor
+        1: keyword.other.section.razor
         2: meta.section meta.toc-list variable.other.section.razor
       set:
         - match: '\{'
@@ -172,22 +180,22 @@ contexts:
   component-directive:
     - match: '\b(preservewhitespace)\b\s*(\btrue\b|\bfalse\b)?'
       captures:
-        1: keyword.declaration.preservewhitespace.razor
+        1: keyword.other.preservewhitespace.razor
         2: constant.language.cs
       pop: 1
 
     - match: '\b(layout)\b\s+'
-      scope: keyword.declaration.layout.razor
+      scope: keyword.other.layout.razor
       set: cs-type
 
     - match: '\b(typeparam)\b\s'
-      scope: keyword.declaration.typeparam.razor
+      scope: keyword.other.typeparam.razor
       set: cs-type-constraint
 
     # Standalone attributes
     - match: '\b(on{{name_normal}})(:)(preventDefault|stopPropagation)\b'
       captures:
-        1: keyword.declaration.attribute-bind.razor
+        1: keyword.other.attribute-bind.razor
         2: punctuation.separator.event.html
         3: entity.other.attribute-name.html
       pop: 1
@@ -196,26 +204,26 @@ contexts:
     - match: '\b(attributes|bind|bind:culture|on{{name_normal}}|bind-{{name_normal}}|key|ref)\b\s*(=)'
       captures:
         0: meta.attribute-with-value.style.html
-        1: keyword.declaration.attribute-bind.razor
+        1: keyword.other.attribute-bind.razor
         2: punctuation.separator.key-value.html
       set:
         - match: \'
           scope: string.quoted.single.html punctuation.definition.string.begin.html
-          set: scope:embed.source.cs.razor#razor_single_quote_line_of_code_in
+          set: [end-single-quoted, scope:embed.source.cs.razor#razor_single_quote_line_of_code_in]
         - match: \"
           scope: string.quoted.double.html punctuation.definition.string.begin.html
-          set:  scope:embed.source.cs.razor#razor_double_quote_line_of_code_in
+          set: [end-double-quoted, scope:embed.source.cs.razor#razor_double_quote_line_of_code_in]
 
     # Attribute data bindings that are just normal HTML strings.
     - match: '\b(formname)\b'
       captures:
         0: meta.attribute-with-value.style.html
-        1: keyword.declaration.attribute-bind.razor
+        1: keyword.other.attribute-bind.razor
       set: scope:source.razor#tag-generic-attribute-assignment
 
     # Rendermode that can be set on the whole component, or on individual objects.
     - match: '\b(rendermode)\b'
-      scope: keyword.declaration.rendermode.razor
+      scope: keyword.other.rendermode.razor
       set:
         - match: \s+
         - match: \=

@@ -44,6 +44,11 @@ contexts:
     - meta_scope: embed.source.cs
     - match: ''
       pop: 1
+  immediately-pop-cs-clear-string-scope:
+    - clear_scopes: 1
+    - meta_scope: embed.source.cs
+    - match: ''
+      pop: 1
 
   razor-comments:
     # E-mail addresses have the @ symbol but don't activate code.
@@ -77,6 +82,18 @@ contexts:
     - match: '\@'
       scope: keyword.other.expression.razor
       push: [immediately-pop-cs, scope:embed.source.cs.razor#razor_line_of_code_in]
+
+  # When inside an HTML attribute, we need special handling to deal with switching back to HTML.
+  # We also need to clear the string scope.
+  # Inline C# expressions only.
+  razor-keywords-html-attribute-single-quoted:
+    - match: '\@'
+      scope: keyword.other.expression.razor
+      push: [immediately-pop-cs-clear-string-scope, scope:embed.source.cs.razor#razor_single_quote_line_of_code_in]
+  razor-keywords-html-attribute-double-quoted:
+    - match: '\@'
+      scope: keyword.other.expression.razor
+      push: [immediately-pop-cs-clear-string-scope, scope:embed.source.cs.razor#razor_double_quote_line_of_code_in]
 
   # Enable Razor context switching.
   tag-html:
@@ -155,6 +172,28 @@ contexts:
     - include: main
 
   # Used to identify Razor commands in HTML element attributes.
+  # It is so annoying that there are so many bespoke contexts to hook.
   tag-attributes:
     - meta_prepend: true
     - include: razor-keywords
+
+  tag-class-attribute-value-double-quoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-double-quoted
+  tag-class-attribute-value-single-quoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-single-quoted
+
+  tag-href-attribute-value-double-quoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-double-quoted
+  tag-href-attribute-value-single-quoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-single-quoted
+
+  tag-id-attribute-value-double-quoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-double-quoted
+  tag-id-attribute-value-single-quoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-single-quoted

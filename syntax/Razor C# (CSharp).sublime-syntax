@@ -88,7 +88,7 @@ contexts:
   razor_single_quote_line_of_code_in:
     - meta_prepend: true
     - include: razor-comments
-    - match: \'
+    - match: "(?=\')"
       scope: string.quoted.single.html punctuation.definition.string.end.html
       pop: 1
     - match: '$\n?'
@@ -97,7 +97,7 @@ contexts:
   razor_double_quote_line_of_code_in:
     - meta_prepend: true
     - include: razor-comments
-    - match: '\"'
+    - match: '(?=\")'
       scope: string.quoted.double.html punctuation.definition.string.end.html
       pop: 1
     - match: '$\n?'
