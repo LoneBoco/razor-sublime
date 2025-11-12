@@ -1,6 +1,6 @@
 %YAML 1.2
 ---
-name: Razor C#
+name: Razor C# (Razor)
 scope: source.razor.engine
 version: 2
 hidden: true
