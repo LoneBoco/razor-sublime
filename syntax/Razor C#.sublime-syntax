@@ -79,11 +79,15 @@ contexts:
     # Razor keywords that switch to C# default.
     - match: '\@(?={{razor_keywords}})'
       scope: keyword.other.reserved.razor
-      push: [immediately-pop-cs, scope:source.razor.engine#keyword]
+      push:
+        - immediately-pop-cs
+        - scope:source.razor.engine#keyword
     # Inline C# expressions.
     - match: '\@'
       scope: keyword.other.expression.razor
-      push: [immediately-pop-cs, scope:embed.source.cs.razor#razor-expression-eol]
+      push:
+        - immediately-pop-cs
+        - scope:embed.source.cs.razor#razor-expression-eol
 
   # When inside an HTML attribute, we need special handling to deal with switching back to HTML.
   # We also need to clear the string scope.
@@ -91,11 +95,15 @@ contexts:
   razor-keywords-html-attribute-single-quoted:
     - match: '\@'
       scope: keyword.other.expression.razor
-      push: [immediately-pop-cs-clear-string-scope, scope:embed.source.cs.razor#razor-single-quote-expression]
+      push:
+        - immediately-pop-cs-clear-string-scope
+        - scope:embed.source.cs.razor#razor-single-quote-expression
   razor-keywords-html-attribute-double-quoted:
     - match: '\@'
       scope: keyword.other.expression.razor
-      push: [immediately-pop-cs-clear-string-scope, scope:embed.source.cs.razor#razor-double-quote-expression]
+      push:
+        - immediately-pop-cs-clear-string-scope
+        - scope:embed.source.cs.razor#razor-double-quote-expression
 
   # Enable Razor context switching.
   tag-html:
@@ -111,27 +119,37 @@ contexts:
       captures:
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.block.any.html
-      set: [tag-html-nested-end, block-any-tag-content]
+      set:
+        - tag-html-nested-end
+        - block-any-tag-content
     - match: (<)({{html_inline_tags}})
       captures:
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.inline.any.html
-      set: [tag-html-nested-end, inline-any-tag-content]
+      set:
+        - tag-html-nested-end
+        - inline-any-tag-content
     - match: (<)((?i:form|fieldset){{tag_name_break}})
       captures:
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.block.form.html
-      set: [tag-html-nested-end, block-forms-tag-content]
+      set:
+        - tag-html-nested-end
+        - block-forms-tag-content
     - match: (<)({{html_forms_tags}})
       captures:
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.inline.form.html
-      set: [tag-html-nested-end, inline-forms-tag-content]
+      set:
+        - tag-html-nested-end
+        - inline-forms-tag-content
     - match: (<)({{html_table_tags}})
       captures:
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.inline.table.html
-      set: [tag-html-nested-end, table-tag-content]
+      set:
+        - tag-html-nested-end
+        - table-tag-content
 
   # Special nested syntax for templated delegates.
   tag-html-nested-end:

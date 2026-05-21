@@ -66,7 +66,7 @@ contexts:
       embed: scope:embed.source.cs.razor#razor-type-with-constraint
       escape: $\n?
 
-  # Insert a code block.
+  # Insert a colored code block.
   cs-block:
     - match: '\{'
       scope: keyword.other.block.razor punctuation.block.begin.razor
@@ -81,11 +81,11 @@ contexts:
   block:
     - match: '\b(?=using\s*\()'
       scope: keyword.other.expression.razor
-      set: [scope:embed.source.cs.razor#razor-statement-eol]
+      set: scope:embed.source.cs.razor#razor-statement-eol
 
     - match: '\b(?={{razor_keywords_expression_block}})\b'
       scope: keyword.other.expression.razor
-      set: [scope:embed.source.cs.razor#razor-statement-eol]
+      set: scope:embed.source.cs.razor#razor-statement-eol
 
     - match: '\b(functions|code)\b'
       scope: keyword.other.code.block.razor
@@ -117,7 +117,9 @@ contexts:
 
     - match: '\b(inject)\b\s+'
       scope: keyword.other.inject.razor
-      set: [cs-variable, cs-interface]
+      set:
+        - cs-variable
+        - cs-interface
 
     - match: '\b(namespace)\b\s+'
       scope: keyword.other.namespace.razor
@@ -205,10 +207,14 @@ contexts:
       set:
         - match: \'
           scope: string.quoted.single.html punctuation.definition.string.begin.html
-          set: [end-single-quoted, scope:embed.source.cs.razor#razor-single-quote-expression]
+          set:
+            - end-single-quoted
+            - scope:embed.source.cs.razor#razor-single-quote-expression
         - match: \"
           scope: string.quoted.double.html punctuation.definition.string.begin.html
-          set: [end-double-quoted, scope:embed.source.cs.razor#razor-double-quote-expression]
+          set:
+            - end-double-quoted
+            - scope:embed.source.cs.razor#razor-double-quote-expression
 
     # Attribute data bindings that are just normal HTML strings.
     - match: '\b(formname)\b'
