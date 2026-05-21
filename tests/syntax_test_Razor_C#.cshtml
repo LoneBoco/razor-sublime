@@ -8,9 +8,9 @@
 }
 
 @implements IDisposable
-@implements namespace.IDisposable
+@implements mynamespace.IDisposable
 
-@inherits Namespace.CustomRazorPage<TModel>
+@inherits MyNamespace.CustomRazorPage<TModel>
 @inject IMyService MyService
 @namespace Your.Namespace.Here
 
@@ -63,6 +63,8 @@
 
 <link rel="stylesheet" href="@Assets["BlazorApp.styles.css"]" />
 <div id='@MyClass.MyId' class='theclass'></div>
+
+<link href="@Url.Content("~/Styles/main.css")" rel="stylesheet" type="text/css" />
 
 @section test {
 

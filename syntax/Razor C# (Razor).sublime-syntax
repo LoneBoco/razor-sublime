@@ -13,7 +13,7 @@ variables:
   name_normal: '{{start_char}}{{other_char}}*\b'
 
   razor_rendermodes: '(InteractiveServer|InteractiveWebAssembly|InteractiveAuto)'
-  razor_keywords_expression_block: '(?xi: if | switch | for | foreach | while | do | try | lock)'
+  razor_keywords_expression_block: '(?xi: if | switch | for | foreach | while | do | try | lock )'
 
 #############################
 
@@ -40,7 +40,7 @@ contexts:
   cs-namespace:
     - match: '(?=\S)'
       pop: 1
-      embed: scope:embed.source.cs.razor#using_namespace
+      embed: scope:embed.source.cs.razor#using-namespace
       escape: (?=\s|$\n?)
 
   # Insert an interface.
@@ -53,26 +53,24 @@ contexts:
   cs-variable:
     - match: '(?=\S)'
       pop: 1
-      embed: scope:embed.source.cs.razor#var_declaration_explicit
+      embed: scope:embed.source.cs.razor#var-declarator
       escape: (?=\s|$\n?)
 
   # Inserts a type.
   cs-type:
     - match: '(?=\S)'
-      pop: 1
-      embed: scope:embed.source.cs.razor#type_no_space
-      escape: (?=\s|$\n?)
+      set: scope:embed.source.cs.razor#maybe-type
   cs-type-constraint:
     - match: '(?=\S)'
       pop: 1
-      embed: scope:embed.source.cs.razor#razor_type_with_constraint
+      embed: scope:embed.source.cs.razor#razor-type-with-constraint
       escape: $\n?
 
   # Insert a code block.
   cs-block:
     - match: '\{'
       scope: keyword.other.block.razor punctuation.block.begin.razor
-      set: scope:embed.source.cs.razor#code_block_in
+      set: scope:embed.source.cs.razor#inside-razor-csharp-block
 
   keyword:
     - include: component-directive
@@ -81,15 +79,13 @@ contexts:
     - include: mvc-directive
 
   block:
-    - match: '\b(using)\s*(\()'
-      captures:
-        1: keyword.control.using.cs
-        2: meta.group.cs punctuation.section.group.begin.cs
-      set: [scope:embed.source.cs.razor#using_block, scope:embed.source.cs.razor#line_of_code]
+    - match: '\b(?=using\s*\()'
+      scope: keyword.other.expression.razor
+      set: [scope:embed.source.cs.razor#razor-statement-eol]
 
     - match: '\b(?={{razor_keywords_expression_block}})\b'
       scope: keyword.other.expression.razor
-      set: scope:embed.source.cs.razor#line_of_code
+      set: [scope:embed.source.cs.razor#razor-statement-eol]
 
     - match: '\b(functions|code)\b'
       scope: keyword.other.code.block.razor
@@ -100,13 +96,13 @@ contexts:
 
     - match: '\('
       scope: keyword.other.inline.begin.razor
-      set: scope:embed.source.cs.razor#razor_expression_in
+      set: scope:embed.source.cs.razor#razor-expression-paren
 
   general-directive:
     - match: '\b(attribute)\b\s+'
       scope: keyword.other.attribute.razor
       pop: 1
-      embed: scope:embed.source.cs.razor#attribute
+      embed: scope:embed.source.cs.razor#attributes
       escape: \]
       escape_captures:
         0: punctuation.definition.annotation.end.cs
@@ -117,7 +113,7 @@ contexts:
 
     - match: '\b(inherits)\b\s+'
       scope: keyword.other.inherits.razor
-      set: cs-variable
+      set: cs-type
 
     - match: '\b(inject)\b\s+'
       scope: keyword.other.inject.razor
@@ -126,7 +122,7 @@ contexts:
     - match: '\b(namespace)\b\s+'
       scope: keyword.other.namespace.razor
       pop: 1
-      embed: scope:embed.source.cs.razor#namespace_declaration_name
+      embed: scope:embed.source.cs.razor#namespace-declaration-name
       escape: (?=\s|$\n?)
 
     - match: '\b(page)\b\s+'
@@ -154,7 +150,7 @@ contexts:
             - match: '(?=\S)'
               set: cs-namespace
         - match: '(?=\S)'
-          embed: scope:embed.source.cs.razor#var_declaration_explicit
+          embed: scope:embed.source.cs.razor#var-declarator
           escape: (?=\*|,|\s|$\n?)
 
     - match: '\b(tagHelperPrefix)\b\s+'
@@ -166,7 +162,7 @@ contexts:
 
     - match: '\b(model)\b\s+'
       scope: keyword.other.model.razor
-      set: cs-variable
+      set: cs-type
 
     - match: '\b(section)\b\s+({{name_normal}})'
       captures:
@@ -209,10 +205,10 @@ contexts:
       set:
         - match: \'
           scope: string.quoted.single.html punctuation.definition.string.begin.html
-          set: [end-single-quoted, scope:embed.source.cs.razor#razor_single_quote_line_of_code_in]
+          set: [end-single-quoted, scope:embed.source.cs.razor#razor-single-quote-expression]
         - match: \"
           scope: string.quoted.double.html punctuation.definition.string.begin.html
-          set: [end-double-quoted, scope:embed.source.cs.razor#razor_double_quote_line_of_code_in]
+          set: [end-double-quoted, scope:embed.source.cs.razor#razor-double-quote-expression]
 
     # Attribute data bindings that are just normal HTML strings.
     - match: '\b(formname)\b'

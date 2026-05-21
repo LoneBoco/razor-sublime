@@ -30,6 +30,8 @@ variables:
 # Without it, comments that start in one language and end in the other won't work properly.
 # This is due to conflicts with the built-in comments assigned to text.html.basic and source.cs.
 
+# Razor syntax last checked as of .NET 10.
+
 #############################
 
 contexts:
@@ -81,7 +83,7 @@ contexts:
     # Inline C# expressions.
     - match: '\@'
       scope: keyword.other.expression.razor
-      push: [immediately-pop-cs, scope:embed.source.cs.razor#razor_line_of_code_in]
+      push: [immediately-pop-cs, scope:embed.source.cs.razor#razor-expression-eol]
 
   # When inside an HTML attribute, we need special handling to deal with switching back to HTML.
   # We also need to clear the string scope.
@@ -89,11 +91,11 @@ contexts:
   razor-keywords-html-attribute-single-quoted:
     - match: '\@'
       scope: keyword.other.expression.razor
-      push: [immediately-pop-cs-clear-string-scope, scope:embed.source.cs.razor#razor_single_quote_line_of_code_in]
+      push: [immediately-pop-cs-clear-string-scope, scope:embed.source.cs.razor#razor-single-quote-expression]
   razor-keywords-html-attribute-double-quoted:
     - match: '\@'
       scope: keyword.other.expression.razor
-      push: [immediately-pop-cs-clear-string-scope, scope:embed.source.cs.razor#razor_double_quote_line_of_code_in]
+      push: [immediately-pop-cs-clear-string-scope, scope:embed.source.cs.razor#razor-double-quote-expression]
 
   # Enable Razor context switching.
   tag-html:

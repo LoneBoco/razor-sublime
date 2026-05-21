@@ -2,6 +2,7 @@
 ---
 name: Razor C# (CSharp)
 scope: embed.source.cs.razor
+version: 2
 hidden: true
 
 extends: Packages/C#/C#.sublime-syntax
@@ -34,18 +35,89 @@ contexts:
 
   # Used for @typeparam since it allows where constraints on the generic type.
   # Embed target with an end-of-line escape.
-  razor_type_with_constraint:
+  razor-type-with-constraint:
     - match: '{{name}}'
       scope: entity.name.interface.cs
-      set: [data_type_constraint, data_type_parameter]
+      set: type-constraints
 
-  code_block_in:
+  # A single statement that actually ends.
+  razor-statement-eol:
+    - match: '(?=<)'
+      pop: 1
+    - match: '$\n?'
+      pop: 1
+    - include: inside-statement-block
+
+  # Variant of expression that pops on HTML or newlines.
+  razor-expression-eol:
+    - match: '(?=<)'
+      pop: 1
+    - match: '$\n?'
+      pop: 1
+    - include: parens
+    - include: lambdas
+    - match: '{{name}}(?={{generic_declaration}}\s*\.)'
+      scope: support.type.cs
+      pop: 1
+    - include: expression-common
+    - include: else-pop
+
+  # Variant of expression that handles just an expression and pops on ) or newlines.
+  razor-expression-paren:
+    - include: razor-comments
+    - match: '\)'
+      scope: keyword.other.inline.end.razor
+      pop: 1
+    - match: '$\n?'
+      pop: 1
+    - include: expression
+
+  # Variant of expression that pops on string end or newlines.
+  # Used for data binding in Razor components.
+  razor-single-quote-expression:
+    - include: razor-comments
+    - match: "(?=')"
+      scope: string.quoted.single.html punctuation.definition.string.end.html
+      pop: 1
+    - match: '$\n?'
+      pop: 1
+    - include: expression
+  razor-double-quote-expression:
+    - include: razor-comments
+    - match: '(?=\")'
+      scope: string.quoted.double.html punctuation.definition.string.end.html
+      pop: 1
+    - match: '$\n?'
+      pop: 1
+    - include: expression
+
+  # Allows proper formatting on the final closing brace.
+  inside-razor-csharp-block:
     - meta_prepend: true
     - meta_scope: meta.block.cs
     # Pop at the end of the block so we transition back to HTML correctly.
     - match: '\}'
       scope: keyword.other.block.razor punctuation.block.end.razor
       pop: 1
+    - include: inside-csharp-block
+
+###[ C# OVERRIDES ]############################################################
+
+  # Allows HTML context switching and Razor comments.
+  expression:
+    - meta_prepend: true
+    - match: '\@(?=<)'
+      scope: keyword.other.embed.html.razor
+      push: scope:source.razor#tag-html-embed
+
+  expression-common:
+    - meta_prepend: true
+    - match: '(?=<)'
+      pop: 1
+
+  inside-csharp-block:
+    - meta_prepend: true
+    - meta_scope: meta.block.cs
     # Support <text></text>.
     - match: '(<)(text)(>)'
       captures:
@@ -67,69 +139,10 @@ contexts:
       embed: scope:source.razor
       escape: '$\n?'
 
-  # Allows HTML context switching and Razor comments.
-  line_of_code_in:
+  # Enables use of templated Razor delegates.
+  assignment-value:
     - meta_prepend: true
+    - include: razor-comments
     - match: '\@(?=<)'
       scope: keyword.other.embed.html.razor
-      push: scope:source.razor#tag-html-embed
-
-  # Variant of line_of_code_in that pops on HTML or newlines.
-  razor_line_of_code_in:
-    - meta_prepend: true
-    - match: '(?=<)'
-      pop: 1
-    - match: '$\n?'
-      pop: 1
-    - include: line_of_code_in
-
-  # Variant of line_of_code_in that pops on string end or newlines.
-  # Used for data binding in Razor components.
-  razor_single_quote_line_of_code_in:
-    - meta_prepend: true
-    - include: razor-comments
-    - match: "(?=')"
-      scope: string.quoted.single.html punctuation.definition.string.end.html
-      pop: 1
-    - match: '$\n?'
-      pop: 1
-    - include: line_of_code_in
-  razor_double_quote_line_of_code_in:
-    - meta_prepend: true
-    - include: razor-comments
-    - match: '(?=\")'
-      scope: string.quoted.double.html punctuation.definition.string.end.html
-      pop: 1
-    - match: '$\n?'
-      pop: 1
-    - include: line_of_code_in
-
-  # Variant of line_of_code_in that handles just an expression and pops on ) or newlines.
-  razor_expression_in:
-    - meta_prepend: true
-    - include: razor-comments
-    - match: '\)'
-      scope: keyword.other.inline.end.razor
-      pop: 1
-    - match: '$\n?'
-      pop: 1
-    - include: line_of_code_in
-
-  # Enables use of templated Razor delegates.
-  variables_declaration:
-    - meta_prepend: true
-    - include: razor-comments
-    - match: '='
-      scope: keyword.operator.assignment.variable.cs
-      push:
-        - match: '\@(?=<)'
-          scope: keyword.other.embed.html.razor
-          push: scope:source.razor#tag-html-nested-start
-        - match: (?=;|,)
-          pop: 1
-        - match: (?=\{)
-          push:
-            - match: (?=[^,\s{}])
-              pop: 1
-            - include: initializer_constructor
-        - include: line_of_code_in
+      push: scope:source.razor#tag-html-nested-start
