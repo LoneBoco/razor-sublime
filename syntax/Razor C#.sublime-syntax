@@ -74,17 +74,17 @@ contexts:
     - meta_scope: embed.source.cs
     # Razor keywords that keep the block in HTML mode.
     - match: '\@(?={{razor_html_default}})'
-      scope: keyword.other.reserved.razor
+      scope: punctuation.section.embedded.razor
       set: scope:source.razor.engine#keyword
     # Razor keywords that switch to C# default.
     - match: '\@(?={{razor_keywords}})'
-      scope: keyword.other.reserved.razor
+      scope: punctuation.section.embedded.razor
       push:
         - immediately-pop-cs
         - scope:source.razor.engine#keyword
     # Inline C# expressions.
     - match: '\@'
-      scope: keyword.other.expression.razor
+      scope: punctuation.section.embedded.razor
       push:
         - immediately-pop-cs
         - scope:embed.source.cs.razor#razor-expression-eol
@@ -94,13 +94,13 @@ contexts:
   # Inline C# expressions only.
   razor-keywords-html-attribute-single-quoted:
     - match: '\@'
-      scope: keyword.other.expression.razor
+      scope: punctuation.section.embedded.razor
       push:
         - immediately-pop-cs-clear-string-scope
         - scope:embed.source.cs.razor#razor-single-quote-expression
   razor-keywords-html-attribute-double-quoted:
     - match: '\@'
-      scope: keyword.other.expression.razor
+      scope: punctuation.section.embedded.razor
       push:
         - immediately-pop-cs-clear-string-scope
         - scope:embed.source.cs.razor#razor-double-quote-expression

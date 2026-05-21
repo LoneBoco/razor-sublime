@@ -95,7 +95,7 @@ contexts:
       set: cs-block
 
     - match: '\('
-      scope: keyword.other.inline.begin.razor
+      scope: punctuation.section.group.begin.razor
       set: scope:embed.source.cs.razor#razor-expression-paren
 
   general-directive:

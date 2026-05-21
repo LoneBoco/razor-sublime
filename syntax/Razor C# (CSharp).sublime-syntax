@@ -135,9 +135,10 @@ contexts:
 
   # Variant of expression that handles just an expression and pops on ) or newlines.
   razor-expression-paren:
+    - meta_scope: meta.group.cs
     - include: razor-comments
     - match: '\)'
-      scope: keyword.other.inline.end.razor
+      scope: punctuation.section.group.end.razor
       pop: 1
     - match: '$\n?'
       pop: 1
@@ -215,7 +216,7 @@ contexts:
   expression-common:
     - meta_prepend: true
     - match: '\@(?=<)'
-      scope: keyword.other.embed.html.razor
+      scope: punctuation.section.embedded.html.razor
       push: scope:source.razor#tag-html-embed
 
   inside-csharp-block:
@@ -237,7 +238,7 @@ contexts:
     - match: '(?=<)'
       push: scope:source.razor#tag-html-embed
     - match: '\@\:'
-      scope: keyword.other.embed.html.razor
+      scope: punctuation.section.embedded.html.razor
       embed: scope:source.razor
       escape: '$\n?'
 
@@ -260,7 +261,7 @@ contexts:
     - match: '(?=<)'
       push: scope:source.razor#tag-html-embed
     - match: '\@\:'
-      scope: keyword.other.embed.html.razor
+      scope: punctuation.section.embedded.html.razor
       embed: scope:source.razor
       escape: '$\n?'
 
@@ -270,5 +271,5 @@ contexts:
     - meta_prepend: true
     - include: razor-comments
     - match: '\@(?=<)'
-      scope: keyword.other.embed.html.razor
+      scope: punctuation.section.embedded.html.razor
       push: scope:source.razor#tag-html-nested-start
