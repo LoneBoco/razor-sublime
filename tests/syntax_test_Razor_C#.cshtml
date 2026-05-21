@@ -194,6 +194,13 @@ else
     var i = true;
 }
 
+@if (true)
+{
+    var i = 1;
+}
+else for (var j = 0; j < 10; ++j)
+    ViewData[$"Test{j}"] = $"Test{j}";
+
 <p style="display: none">Test</p>
 
 @switch (DateTime.Now.Year)
