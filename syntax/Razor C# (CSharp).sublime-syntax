@@ -187,15 +187,13 @@ contexts:
     - match: else\b
       scope: keyword.control.conditional.else.cs
       set: razor-maybe-statement
-    - match: (?=\S)
-      pop: 1
+    - include: else-pop
 
   razor-maybe-while-statement:
     - match: while\b
       scope: keyword.control.loop.while.cs
       set: maybe-expression-group
-    - match: (?=\S)
-      pop: 1
+    - include: else-pop
 
   razor-maybe-catch-statement:
     - match: catch\b
@@ -210,8 +208,7 @@ contexts:
       set:
         - razor-maybe-catch-statement
         - razor-maybe-statement
-    - match: (?=\S)
-      pop: 1
+    - include: else-pop
 
 ###[ C# OVERRIDES ]############################################################
 
