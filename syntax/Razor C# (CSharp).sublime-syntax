@@ -48,9 +48,9 @@ contexts:
       pop: 1
     - match: '$\n?'
       pop: 1
-    - include: razor-embedded-statements
+    - include: razor-embedded-statement
 
-  razor-embedded-statements:
+  razor-embedded-statement:
     # conditional statements
     - match: if\b
       scope: keyword.control.conditional.if.cs
@@ -116,7 +116,7 @@ contexts:
     - match: \{
       scope: punctuation.section.block.begin.cs
       set: inside-statement-block
-    - include: razor-embedded-statements
+    - include: razor-embedded-statement
     - include: else-pop
 
   # Variant of expression that pops on HTML or newlines.
