@@ -220,7 +220,6 @@ contexts:
 
   inside-csharp-block:
     - meta_prepend: true
-    - meta_scope: meta.block.cs
     # Support <text></text>.
     - match: '(<)(text)(>)'
       captures:
@@ -244,7 +243,6 @@ contexts:
 
   inside-statement-block:
     - meta_prepend: true
-    - meta_scope: meta.block.cs
     # Support <text></text>.
     - match: '(<)(text)(>)'
       captures:
