@@ -55,7 +55,7 @@ contexts:
     - match: if\b
       scope: keyword.control.conditional.if.cs
       set:
-        - razor-fix-statement-if
+        - razor-maybe-ifelse-statement
         - razor-maybe-statement
         - maybe-expression-group
     - match: switch\b
@@ -67,14 +67,14 @@ contexts:
     - match: try\b
       scope: keyword.control.exception.try.cs
       set:
-        - razor-fix-statement-try-catch
+        - razor-maybe-catch-statement
         - razor-maybe-statement
         - maybe-expression-group
     # loop statements
     - match: do\b
       scope: keyword.control.loop.do.cs
       set:
-        - razor-fix-statement-do-while
+        - razor-maybe-while-statement
         - razor-maybe-statement
     - match: foreach\b
       scope: keyword.control.loop.foreach.cs
@@ -177,11 +177,11 @@ contexts:
   # The C# syntax doesn't enforce blocks, which is troublesome because we need to know if we should stay in C# mode or switch back to HTML mode.
   # These fixes will let us handle chained blocks, like if/else or try/catch scenarios, by explicitly looking for continuation statements.
 
-  razor-fix-statement-if:
+  razor-maybe-ifelse-statement:
     - match: else\s+if\b
       scope: keyword.control.conditional.elseif.cs
       set:
-        - razor-fix-statement-if
+        - razor-maybe-ifelse-statement
         - razor-maybe-statement
         - maybe-expression-group
     - match: else\b
@@ -190,25 +190,25 @@ contexts:
     - match: (?=\S)
       pop: 1
 
-  razor-fix-statement-do-while:
+  razor-maybe-while-statement:
     - match: while\b
       scope: keyword.control.loop.while.cs
       set: maybe-expression-group
     - match: (?=\S)
       pop: 1
 
-  razor-fix-statement-try-catch:
+  razor-maybe-catch-statement:
     - match: catch\b
       scope: keyword.control.exception.catch.cs
       set:
-        - razor-fix-statement-try-catch
+        - razor-maybe-catch-statement
         - razor-maybe-statement
         - catch-guard
         - catch-group
     - match: finally\b
       scope: keyword.control.exception.finally.cs
       set:
-        - razor-fix-statement-try-catch
+        - razor-maybe-catch-statement
         - razor-maybe-statement
     - match: (?=\S)
       pop: 1
