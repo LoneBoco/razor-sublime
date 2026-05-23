@@ -187,7 +187,7 @@ contexts:
   # Special context to properly get us out of @section blocks.
   razor-section-block:
     - match: '\}'
-      scope: keyword.other.block.razor punctuation.block.end.razor
+      scope: punctuation.section.block.end.razor
       pop: 2
     - include: main
 

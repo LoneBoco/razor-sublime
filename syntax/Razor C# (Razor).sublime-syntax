@@ -69,7 +69,7 @@ contexts:
   # Insert a colored code block.
   cs-block:
     - match: '\{'
-      scope: keyword.other.block.razor punctuation.block.begin.razor
+      scope: punctuation.section.block.begin.razor
       set: scope:embed.source.cs.razor#inside-razor-csharp-block
 
   keyword:
@@ -172,7 +172,7 @@ contexts:
         2: meta.section meta.toc-list variable.other.section.razor
       set:
         - match: '\{'
-          scope: keyword.other.block.razor punctuation.block.begin.razor
+          scope: punctuation.section.block.begin.razor
           set: scope:source.razor#razor-section-block
 
   component-directive:
