@@ -43,11 +43,13 @@ contexts:
 
   # Used to apply a meta scope to the C# syntax.
   immediately-pop-cs:
+    - meta_include_prototype: false
     - meta_scope: embed.source.cs
     - match: ''
       pop: 1
   immediately-pop-cs-clear-string-scope:
     - clear_scopes: 1
+    - meta_include_prototype: false
     - meta_scope: embed.source.cs
     - match: ''
       pop: 1
@@ -104,6 +106,12 @@ contexts:
       push:
         - immediately-pop-cs-clear-string-scope
         - scope:embed.source.cs.razor#razor-double-quote-expression
+  razor-keywords-html-attribute-unquoted:
+    - match: '\@'
+      scope: punctuation.section.embedded.razor
+      push:
+        - immediately-pop-cs-clear-string-scope
+        - scope:embed.source.cs.razor#razor-unquoted-expression
 
   # Enable Razor context switching.
   tag-html:
@@ -203,6 +211,9 @@ contexts:
   tag-class-attribute-value-single-quoted-content:
     - meta_prepend: true
     - include: razor-keywords-html-attribute-single-quoted
+  tag-class-attribute-value-unquoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-unquoted
 
   tag-href-attribute-value-double-quoted-content:
     - meta_prepend: true
@@ -210,6 +221,9 @@ contexts:
   tag-href-attribute-value-single-quoted-content:
     - meta_prepend: true
     - include: razor-keywords-html-attribute-single-quoted
+  tag-href-attribute-value-unquoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-unquoted
 
   tag-id-attribute-value-double-quoted-content:
     - meta_prepend: true
@@ -217,6 +231,9 @@ contexts:
   tag-id-attribute-value-single-quoted-content:
     - meta_prepend: true
     - include: razor-keywords-html-attribute-single-quoted
+  tag-id-attribute-value-unquoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-unquoted
 
   tag-generic-attribute-value-double-quoted-content:
     - meta_prepend: true
@@ -224,3 +241,6 @@ contexts:
   tag-generic-attribute-value-single-quoted-content:
     - meta_prepend: true
     - include: razor-keywords-html-attribute-single-quoted
+  tag-generic-attribute-value-unquoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-unquoted

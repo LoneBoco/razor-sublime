@@ -62,7 +62,9 @@
 </form>
 
 <link rel="stylesheet" href="@Assets["BlazorApp.styles.css"]" />
-<div id='@MyClass.MyId' class='theclass-@name' custom="custom-@(value)"></div>
+<div id='@MyClass.MyId' class='theclass-@name' custom='custom-@(value)'></div>
+<div id="@MyClass.MyId" class="theclass-@name" custom="custom-@(value)"></div>
+<div id=@MyClass.MyId class=theclass-@name custom=custom-@(value)></div>
 
 <link href="@Url.Content("~/Styles/main.css")" rel="stylesheet" type="text/css" />
 

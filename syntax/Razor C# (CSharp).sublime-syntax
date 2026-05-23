@@ -161,6 +161,11 @@ contexts:
     - match: '$\n?'
       pop: 1
     - include: expression
+  razor-unquoted-expression:
+    - match: (?=[\t\n\f ]|/?>)
+      pop: 1
+    - include: razor-comments
+    - include: expression
 
   # Formats braces.
   inside-razor-csharp-block:
