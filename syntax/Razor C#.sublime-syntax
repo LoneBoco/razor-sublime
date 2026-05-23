@@ -217,3 +217,10 @@ contexts:
   tag-id-attribute-value-single-quoted-content:
     - meta_prepend: true
     - include: razor-keywords-html-attribute-single-quoted
+
+  tag-generic-attribute-value-double-quoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-double-quoted
+  tag-generic-attribute-value-single-quoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-single-quoted
