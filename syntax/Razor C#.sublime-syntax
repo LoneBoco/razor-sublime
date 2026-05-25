@@ -73,45 +73,62 @@ contexts:
       scope: invalid.illegal.stray-comment-end.razor
 
   razor-keywords:
-    - meta_scope: embed.source.cs
     # Razor keywords that keep the block in HTML mode.
     - match: '\@(?={{razor_html_default}})'
-      scope: keyword.other.reserved.razor
+      scope: punctuation.definition.keyword.razor
       set: scope:source.razor.engine#keyword
     # Razor keywords that switch to C# default.
     - match: '\@(?={{razor_keywords}})'
-      scope: keyword.other.reserved.razor
+      scope: punctuation.definition.keyword.razor
       push:
         - immediately-pop-cs
         - scope:source.razor.engine#keyword
     # Inline C# expressions.
     - match: '\@'
-      scope: keyword.other.expression.razor
+      scope: punctuation.definition.keyword.razor
       push:
         - immediately-pop-cs
-        - scope:embed.source.cs.razor#razor-expression-eol
+        - scope:embed.source.cs.razor#razor-expression-implicit
 
   # When inside an HTML attribute, we need special handling to deal with switching back to HTML.
   # We also need to clear the string scope.
   # Inline C# expressions only.
   razor-keywords-html-attribute-single-quoted:
     - match: '\@'
-      scope: keyword.other.expression.razor
+      scope: punctuation.definition.keyword.razor
       push:
-        - immediately-pop-cs-clear-string-scope
-        - scope:embed.source.cs.razor#razor-single-quote-expression
+        - match: (?={{razor_keywords}})
+          set:
+            - immediately-pop-cs-clear-string-scope
+            - scope:source.razor.engine#keyword
+        - match: ''
+          set:
+            - immediately-pop-cs-clear-string-scope
+            - scope:embed.source.cs.razor#razor-single-quote-expression
   razor-keywords-html-attribute-double-quoted:
     - match: '\@'
-      scope: keyword.other.expression.razor
+      scope: punctuation.definition.keyword.razor
       push:
-        - immediately-pop-cs-clear-string-scope
-        - scope:embed.source.cs.razor#razor-double-quote-expression
+        - match: (?={{razor_keywords}})
+          set:
+            - immediately-pop-cs-clear-string-scope
+            - scope:source.razor.engine#keyword
+        - match: ''
+          set:
+            - immediately-pop-cs-clear-string-scope
+            - scope:embed.source.cs.razor#razor-double-quote-expression
   razor-keywords-html-attribute-unquoted:
     - match: '\@'
-      scope: punctuation.section.embedded.razor
+      scope: punctuation.definition.keyword.razor
       push:
-        - immediately-pop-cs-clear-string-scope
-        - scope:embed.source.cs.razor#razor-unquoted-expression
+        - match: (?={{razor_keywords}})
+          set:
+            - immediately-pop-cs-clear-string-scope
+            - scope:source.razor.engine#keyword
+        - match: ''
+          set:
+            - immediately-pop-cs-clear-string-scope
+            - scope:embed.source.cs.razor#razor-unquoted-expression
 
   # Enable Razor context switching.
   tag-html:
@@ -125,6 +142,7 @@ contexts:
     - include: razor-keywords
     - match: (<)({{html_block_tags}})
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.block.any.html
       set:
@@ -132,6 +150,7 @@ contexts:
         - block-any-tag-content
     - match: (<)({{html_inline_tags}})
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.inline.any.html
       set:
@@ -139,6 +158,7 @@ contexts:
         - inline-any-tag-content
     - match: (<)((?i:form|fieldset){{tag_name_break}})
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.block.form.html
       set:
@@ -146,6 +166,7 @@ contexts:
         - block-forms-tag-content
     - match: (<)({{html_forms_tags}})
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.inline.form.html
       set:
@@ -153,6 +174,7 @@ contexts:
         - inline-forms-tag-content
     - match: (<)({{html_table_tags}})
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.inline.table.html
       set:
@@ -165,6 +187,7 @@ contexts:
     - include: razor-keywords
     - match: '(</)({{tag_name}})(>)'
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.block.any.html
         3: punctuation.definition.tag.end.html
@@ -178,6 +201,7 @@ contexts:
     - include: razor-comments
     - match: '(</)({{html_block_tags}}|{{html_inline_tags}})'
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.block.any.html
       push:
@@ -189,13 +213,13 @@ contexts:
   # Pop 2 to get us back to C#.
   tag-end-razor:
     - match: '>'
-      scope: punctuation.definition.tag.end.html
+      scope: meta.tag.block.any.html punctuation.definition.tag.end.html
       pop: 2
 
   # Special context to properly get us out of @section blocks.
   razor-section-block:
     - match: '\}'
-      scope: keyword.other.block.razor punctuation.block.end.razor
+      scope: punctuation.section.block.end.razor keyword.other.block.razor
       pop: 2
     - include: main
 

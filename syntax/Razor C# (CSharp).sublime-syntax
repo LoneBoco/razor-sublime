@@ -115,10 +115,10 @@ contexts:
     - include: local-declarations
     # expressions
     - match: (?=\S)
-      set: razor-expression-eol
+      set: razor-expression-implicit
 
   # Variant of expression that pops on HTML or newlines.
-  razor-expression-eol:
+  razor-expression-implicit:
     - match: '(?=<)'
       pop: 1
     - match: '$\n?'
@@ -126,15 +126,21 @@ contexts:
     - include: terminators
     - include: parens
     - include: lambdas
-    # Override to include the generic so we don't pop early.
-    - match: '{{name}}(?={{generic_declaration}}\s*\.)'
-      scope: support.type.cs
+    # Override to not include the generic, nor allow extraneous whitespace.
+    # Razor will only allow the generic inside explicit Razor expressions.
+    - match: '{{name}}(?={{generic_declaration}})'
+      scope: variable.other.cs
       pop: 1
+    - match: '{{name}}(?=\()'
+      scope: meta.function-call.identifier.cs variable.function.cs
+      push:
+        - function-call-argument-list
+        - type-argument-list
     - include: expression-common
     - include: else-pop
 
   # Variant of expression that handles just an expression and pops on ) or newlines.
-  razor-expression-paren:
+  razor-expression-explicit:
     - include: razor-comments
     - match: '\)'
       scope: keyword.other.inline.end.razor
@@ -165,12 +171,31 @@ contexts:
     - include: razor-comments
     - include: expression
 
+  # Variant of expression that pops on string end or newlines.
+  # Used for data binding in Razor components.
+  razor-single-quote-attribute-annotation:
+    - meta_scope: meta.annotation.cs
+    - include: razor-comments
+    - match: (?=')
+      pop: 1
+    - match: $
+      pop: 1
+    - include: inside-attribute
+  razor-double-quote-attribute-annotation:
+    - meta_scope: meta.annotation.cs
+    - include: razor-comments
+    - match: (?=")
+      pop: 1
+    - match: $
+      pop: 1
+    - include: inside-attribute
+
   # Formats braces.
   inside-razor-csharp-block:
     - meta_scope: meta.block.cs
     # Pop at the end of the block so we transition back to HTML correctly.
     - match: '\}'
-      scope: keyword.other.block.razor punctuation.block.end.razor
+      scope: punctuation.section.block.end.razor keyword.other.block.razor
       pop: 1
     - include: inside-csharp-block
 
@@ -239,8 +264,10 @@ contexts:
     # HTML context switching.
     - match: '(?=<)'
       push: scope:source.razor#tag-html-embed
-    - match: '\@\:'
+    - match: '(\@)\:'
       scope: keyword.other.embed.html.razor
+      captures:
+        1: punctuation.definition.keyword.razor
       embed: scope:source.razor
       escape: '$\n?'
 
@@ -262,8 +289,10 @@ contexts:
     # HTML context switching.
     - match: '(?=<)'
       push: scope:source.razor#tag-html-embed
-    - match: '\@\:'
-      scope: keyword.other.embed.html.razor
+    - match: '(\@)(\:)'
+      captures:
+        1: punctuation.definition.keyword.razor
+        2: keyword.other.embed.html.razor
       embed: scope:source.razor
       escape: '$\n?'
 
@@ -273,5 +302,5 @@ contexts:
     - meta_prepend: true
     - include: razor-comments
     - match: '\@(?=<)'
-      scope: keyword.other.embed.html.razor
+      scope: punctuation.definition.keyword.razor
       push: scope:source.razor#tag-html-nested-start
