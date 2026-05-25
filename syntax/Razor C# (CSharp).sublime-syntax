@@ -147,18 +147,16 @@ contexts:
   # Used for data binding in Razor components.
   razor-single-quote-expression:
     - include: razor-comments
-    - match: "(?=')"
-      scope: string.quoted.single.html punctuation.definition.string.end.html
+    - match: (?=')
       pop: 1
-    - match: '$\n?'
+    - match: $
       pop: 1
     - include: expression
   razor-double-quote-expression:
     - include: razor-comments
-    - match: '(?=\")'
-      scope: string.quoted.double.html punctuation.definition.string.end.html
+    - match: (?=")
       pop: 1
-    - match: '$\n?'
+    - match: $
       pop: 1
     - include: expression
 
