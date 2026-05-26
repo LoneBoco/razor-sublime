@@ -529,5 +529,9 @@ finally
 
 <style>
 @media {}
-@* BUG: This should probably work. *@
+   @* Comment inside a style tag. *@
+@* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.block.razor *@
 </style>
+
+<span style="display: none; @* Comment in style attribute *@"></span>
+@*                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.block.razor *@
