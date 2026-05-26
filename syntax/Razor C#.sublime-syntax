@@ -25,7 +25,7 @@ variables:
 
   razor_html_default: '(?xi: section)'
 
-# This syntax uses embed.text.html and embed.source.cs as scope names.
+# This syntax uses embed.text.html.razor, embed.text.css.razor, and embed.source.cs.razor as scope names.
 # While not considered proper, this is done to ensure comments work.
 # Without it, comments that start in one language and end in the other won't work properly.
 # This is due to conflicts with the built-in comments assigned to text.html.basic and source.cs.
@@ -38,19 +38,19 @@ contexts:
 
   main:
     - meta_prepend: true
-    - meta_scope: embed.text.html
+    - meta_scope: embed.text.html.razor
     - include: razor-comments
 
   # Used to apply a meta scope to the C# syntax.
   immediately-pop-cs:
     - meta_include_prototype: false
-    - meta_scope: embed.source.cs
+    - meta_scope: embed.source.cs.razor
     - match: ''
       pop: 1
   immediately-pop-cs-clear-string-scope:
     - clear_scopes: 1
     - meta_include_prototype: false
-    - meta_scope: embed.source.cs
+    - meta_scope: embed.source.cs.razor
     - match: ''
       pop: 1
 
@@ -75,17 +75,17 @@ contexts:
   razor-keywords:
     # Razor keywords that keep the block in HTML mode.
     - match: '\@(?={{razor_html_default}})'
-      scope: punctuation.definition.keyword.razor
+      scope: punctuation.definition.embedded.razor
       set: scope:source.razor.engine#keyword
     # Razor keywords that switch to C# default.
     - match: '\@(?={{razor_keywords}})'
-      scope: punctuation.definition.keyword.razor
+      scope: punctuation.definition.embedded.razor
       push:
         - immediately-pop-cs
         - scope:source.razor.engine#keyword
     # Inline C# expressions.
     - match: '\@'
-      scope: punctuation.definition.keyword.razor
+      scope: punctuation.definition.embedded.razor
       push:
         - immediately-pop-cs
         - scope:embed.source.cs.razor#razor-expression-implicit
@@ -95,7 +95,7 @@ contexts:
   # Inline C# expressions only.
   razor-keywords-html-attribute-single-quoted:
     - match: '\@'
-      scope: punctuation.definition.keyword.razor
+      scope: punctuation.definition.embedded.razor
       push:
         - match: (?={{razor_keywords}})
           set:
@@ -107,7 +107,7 @@ contexts:
             - scope:embed.source.cs.razor#razor-single-quote-expression
   razor-keywords-html-attribute-double-quoted:
     - match: '\@'
-      scope: punctuation.definition.keyword.razor
+      scope: punctuation.definition.embedded.razor
       push:
         - match: (?={{razor_keywords}})
           set:
@@ -119,7 +119,7 @@ contexts:
             - scope:embed.source.cs.razor#razor-double-quote-expression
   razor-keywords-html-attribute-unquoted:
     - match: '\@'
-      scope: punctuation.definition.keyword.razor
+      scope: punctuation.definition.embedded.razor
       push:
         - match: (?={{razor_keywords}})
           set:
@@ -132,13 +132,13 @@ contexts:
 
   # Enable Razor context switching.
   tag-html:
-    - meta_scope: embed.text.html
+    - meta_scope: embed.text.html.razor
     - meta_prepend: true
     - include: razor-keywords
 
   # Special nested syntax for templated delegates.
   tag-html-nested-start:
-    - meta_scope: embed.text.html
+    - meta_scope: embed.text.html.razor
     - include: razor-keywords
     - match: (<)({{html_block_tags}})
       captures:
@@ -183,7 +183,7 @@ contexts:
 
   # Special nested syntax for templated delegates.
   tag-html-nested-end:
-    - meta_scope: embed.text.html
+    - meta_scope: embed.text.html.razor
     - include: razor-keywords
     - match: '(</)({{tag_name}})(>)'
       captures:
@@ -197,7 +197,7 @@ contexts:
 
   # Properly pop back to C# mode when we encounter an end tag (handled in tag-end-razor)
   tag-html-embed:
-    - meta_scope: embed.text.html
+    - meta_scope: embed.text.html.razor
     - include: razor-comments
     - match: '(</)({{html_block_tags}}|{{html_inline_tags}})'
       captures:

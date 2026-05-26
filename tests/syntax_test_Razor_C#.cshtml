@@ -1,6 +1,6 @@
 @* SYNTAX TEST "Razor C#.sublime-syntax" *@
 @attribute [Authorize]
-@* <- source.razor embed.text.html embed.source.cs punctuation.definition.keyword.razor *@
+@* <- source.razor embed.text.html embed.source.cs punctuation.definition.embedded.razor *@
 @* ^^^^^^^             keyword.other.attribute.razor *@
 @*         ^^^^^^^^^^^ meta.annotation *@
 
@@ -135,41 +135,41 @@
 @* ^                  punctuation.definition.tag.begin.html *@
 @* ^^                 meta.tag.block.any.html *@
 @*  ^                 entity.name.tag.block.any.html *@
-@*    ^               punctuation.definition.keyword.razor *@
+@*    ^               punctuation.definition.embedded.razor *@
 @*     ^^^^^^^^^^     meta.attribute-with-value.style.html keyword.other.attribute-bind.razor *@
 @*                  ^ meta.annotation.cs variable.annotation.cs *@
 
 <label>InputValue:<input @bind="InputValue" @bind:culture="new CultureInfo("th-TH", false)" /></label>
-@*                       ^                                    punctuation.definition.keyword.razor *@
+@*                       ^                                    punctuation.definition.embedded.razor *@
 @*                        ^^^^                                keyword.other.attribute-bind.razor *@
 @*                               ^                            variable.other.cs *@
 @*                                           ^^^^^^^^^^^^     keyword.other.attribute-bind.razor *@
 @*                                                          ^ meta.instantiation.cs keyword.operator.new.cs *@
 
 <form method="post" @formname="starship-plain-form" @onsubmit="Submit" @onclick:preventDefault>
-@*                  ^             punctuation.definition.keyword.razor *@
+@*                  ^             punctuation.definition.embedded.razor *@
 @*                   ^^^^^^^^     keyword.other.attribute-bind.razor *@
 @*                              ^ meta.string.html string.quoted.double.html *@
-@*                                                  ^             punctuation.definition.keyword.razor *@
+@*                                                  ^             punctuation.definition.embedded.razor *@
 @*                                                   ^^^^^^^^     keyword.other.attribute-bind.razor *@
 @*                                                              ^ variable.other.cs *@
-@*                                                                     ^          punctuation.definition.keyword.razor *@
+@*                                                                     ^          punctuation.definition.embedded.razor *@
 @*                                                                      ^^^^^^^   keyword.other.attribute-bind.razor *@
 @*                                                                             ^  punctuation.separator.event.html *@
 @*                                                                              ^ entity.other.attribute-name.html *@
     <AntiforgeryToken />
     <ReferenceChild @ref="childComponent1" @rendermode='InteractiveAuto' />
-@*                  ^        punctuation.definition.keyword.razor *@
+@*                  ^        punctuation.definition.embedded.razor *@
 @*                   ^^^     keyword.other.attribute-bind.razor *@
 @*                         ^ variable.other.cs *@
-@*                                         ^               punctuation.definition.keyword.razor *@
+@*                                         ^               punctuation.definition.embedded.razor *@
 @*                                          ^^^^^^^^^^     keyword.other.rendermode.razor *@
 @*                                                       ^ constant.language.rendermode.razor *@
     <div>
         <label>
             Identifier:
             <InputText @bind-Value="Model!.Id" />
-@*                     ^               punctuation.definition.keyword.razor *@
+@*                     ^               punctuation.definition.embedded.razor *@
 @*                      ^^^^^^^^^^     keyword.other.attribute-bind.razor *@
 @*                                   ^ variable.other.cs *@
         </label>
@@ -180,36 +180,36 @@
 </form>
 
 <link rel="stylesheet" href="@Assets["BlazorApp.styles.css"]" />
-@*                           ^   punctuation.definition.keyword.razor *@
+@*                           ^   punctuation.definition.embedded.razor *@
 @*                             ^ variable.other.cs *@
 <div id='@MyClass.MyId' class='theclass-@name' custom='custom-@(var)'></div>
 @*      ^    meta.string.html string.quoted.single.html punctuation.definition.string.begin.html *@
-@*       ^   punctuation.definition.keyword.razor *@
+@*       ^   punctuation.definition.embedded.razor *@
 @*         ^ variable.other.cs *@
 @*                             ^^^^^^^^^      meta.string.html string.quoted.single.html *@
-@*                                      ^     punctuation.definition.keyword.razor *@
+@*                                      ^     punctuation.definition.embedded.razor *@
 @*                                       ^^^^ variable.other.cs *@
 @*                                                     ^^^^^^^     meta.string.html string.quoted.single.html *@
-@*                                                            ^    punctuation.definition.keyword.razor *@
+@*                                                            ^    punctuation.definition.embedded.razor *@
 @*                                                             ^   keyword.other.inline.begin.razor *@
 @*                                                               ^ variable.other.cs *@
 <div id="@MyClass.MyId" class="theclass-@name" custom="custom-@(var)"></div>
 @*      ^    meta.string.html string.quoted.double.html punctuation.definition.string.begin.html *@
-@*       ^   punctuation.definition.keyword.razor *@
+@*       ^   punctuation.definition.embedded.razor *@
 @*         ^ variable.other.cs *@
 @*                                                     ^^^^^^^     meta.string.html string.quoted.double.html *@
-@*                                                            ^    punctuation.definition.keyword.razor *@
+@*                                                            ^    punctuation.definition.embedded.razor *@
 @*                                                             ^   keyword.other.inline.begin.razor *@
 @*                                                               ^ variable.other.cs *@
 <div id=@MyClass.MyId class=theclass-@name custom=custom-@(var)></div>
-@*      ^   string.unquoted.html punctuation.definition.keyword.razor *@
+@*      ^   string.unquoted.html punctuation.definition.embedded.razor *@
 @*        ^ variable.other.cs *@
 @*                                                ^^^^^^^     meta.string.html string.unquoted.html *@
-@*                                                       ^    punctuation.definition.keyword.razor *@
+@*                                                       ^    punctuation.definition.embedded.razor *@
 @*                                                        ^   keyword.other.inline.begin.razor *@
 @*                                                          ^ variable.other.cs *@
 <link href="@Url.Content("~/Styles/main.css")" rel="stylesheet" type="text/css" />
-@*          ^       punctuation.definition.keyword.razor *@
+@*          ^       punctuation.definition.embedded.razor *@
 @*            ^     variable.other.cs *@
 @*                ^ meta.function-call.identifier.cs variable.function.cs *@
 
@@ -239,7 +239,7 @@
 @*                          ^^ comment.block.razor punctuation.definition.comment.end.razor *@
 
     @variable.whatever(x => { x < 10 })<p>Okay</p>
-@*  ^                                      punctuation.definition.keyword.razor *@
+@*  ^                                      punctuation.definition.embedded.razor *@
 @*    ^                                    variable.other.cs *@
 @*             ^                           variable.function.cs *@
 @*                     ^                   meta.function.anonymous.parameters.cs variable.parameter.cs *@
@@ -248,7 +248,7 @@
 @*                                     ^^^ meta.tag.block.any.html *@
 
     @if (test == 1) {
-@*  ^                 punctuation.definition.keyword.razor *@
+@*  ^                 punctuation.definition.embedded.razor *@
 @*   ^^               keyword.control.conditional.if.cs *@
 @*                  ^ meta.block.cs punctuation.section.block.begin.cs *@
         int i = a;
@@ -256,7 +256,7 @@
     }
 
     @using (var service = GetService()) {
-@*  ^                        punctuation.definition.keyword.razor *@
+@*  ^                        punctuation.definition.embedded.razor *@
 @*   ^^^^^                   keyword.declaration.using.cs *@
 @*                         ^ variable.function.cs *@
         int i = a;
@@ -265,7 +265,7 @@
 }
 
    @{
-@* ^  punctuation.definition.keyword.razor *@
+@* ^  punctuation.definition.embedded.razor *@
 @*  ^ punctuation.section.block.begin.razor keyword.other.block.razor *@
     #region Test Region
     string[] teamMembers = {"Matt", "Joanne", "Robert", "Nancy"};
@@ -275,17 +275,18 @@
 @*  ^^^ comment.block.razor *@
     <p>The number of names in the teamMembers array: @teamMembers.Length</p>
 @*  ^^^                                                                      meta.tag.block.any.html *@
-@*                                                   ^                       punctuation.definition.keyword.razor *@
+@*                                                   ^                       punctuation.definition.embedded.razor *@
 @*                                                     ^                     variable.other.cs *@
+@*                                                                 ^         variable.other.cs *@
 @*                                                                      ^^^^ meta.tag.block.any.html *@
     <p>The number of names in the teamMembers array: @teamMembers.Length </p>
 @*                                                                      ^     embed.text.html *@
 @*                                                                       ^^^^ meta.tag.block.any.html *@
     @:Raw HTML line test @teamMembers.Length
-@*  ^                                    punctuation.definition.keyword.razor *@
+@*  ^                                    punctuation.definition.embedded.razor *@
 @*   ^                                   keyword.other.embed.html.razor *@
 @*     ^                                 embed.text.html *@
-@*                       ^               punctuation.definition.keyword.razor *@
+@*                       ^               punctuation.definition.embedded.razor *@
 @*                         ^             variable.other.cs *@
 @*                                     ^ variable.other.cs *@
 
@@ -299,7 +300,7 @@
         var name2 = "(U) " + name;
         <p>@name.Select(x => x.ToUpper())</p>
 @*      ^^^                                   meta.tag.block.any.html *@
-@*         ^                                  punctuation.definition.keyword.razor *@
+@*         ^                                  punctuation.definition.embedded.razor *@
 @*           ^                                variable.other.cs *@
 @*                ^                           variable.function.cs *@
 @*                                       ^^^^ meta.tag.block.any.html *@
@@ -312,7 +313,7 @@
             Reversed
 @*          ^   embed.text.html *@
             @reversedItem
-@*          ^   punctuation.definition.keyword.razor *@
+@*          ^   punctuation.definition.embedded.razor *@
 @*            ^ variable.other.cs *@
         </text>
 @*        ^^^^ entity.name.tag.html *@
@@ -321,9 +322,9 @@
 
 @{
     Func<dynamic, object> petTemplate = @<p>You have a pet named <strong>@item.Name</strong>.</p>;
-@*                                      ^                                                          punctuation.definition.keyword.razor *@
+@*                                      ^                                                          punctuation.definition.embedded.razor *@
 @*                                       ^^^                                                       meta.tag.block.any.html *@
-@*                                                                       ^                         punctuation.definition.keyword.razor *@
+@*                                                                       ^                         punctuation.definition.embedded.razor *@
 @*                                                                         ^                       variable.other.cs *@
 @*                                                                                           ^^^^  meta.tag.block.any.html *@
 @*                                                                                               ^ punctuation.terminator.statement.cs *@
@@ -349,7 +350,7 @@
 @foreach (var myItem in Request.ServerVariables)
 {
     @:<li>My item is @myItem.Test()
-@*  ^      punctuation.definition.keyword.razor *@
+@*  ^      punctuation.definition.embedded.razor *@
 @*   ^     keyword.other.embed.html.razor *@
 @*    ^^^^ meta.tag.block.any.html *@
 @*                            ^ variable.function.cs *@
@@ -372,7 +373,7 @@
 
 <!-- Implicit expressions should not contain spaces, except after await or when the C# statement has a clear ending -->
 <p>@await DoSomething("hello", "world")</p>
-@* ^                                        punctuation.definition.keyword.razor *@
+@* ^                                        punctuation.definition.embedded.razor *@
 @*  ^^^^^                                   keyword.control.flow.await.cs *@
 @*        ^^^^^^^^^^^                       variable.function.cs *@
 @*                     ^^^^^                meta.string.cs string.quoted.double.cs *@
@@ -383,7 +384,7 @@
 @*             ^^^^^^^^^^^^^^^ meta.email *@
 
 <p>The book is ISBN@(isbnNumber)</p>
-@*                 ^              punctuation.definition.keyword.razor *@
+@*                 ^              punctuation.definition.embedded.razor *@
 @*                  ^             keyword.other.inline.begin.razor *@
 @*                    ^           variable.other.cs *@
 @*                             ^  keyword.other.inline.end.razor *@
@@ -416,7 +417,7 @@
         the date: @DateTime.Now
     </text>
 
-    @* BUG: The style should highlight but it doesn't.  Most likely not fixable. *@
+    @* BUG: The style should highlight but it doesn't.  Most likely not fixable without introducing recursion. *@
     <p @if (true) { <text>style="display: none"</text> }>Test</p>
 }
 else if (DateTime.Now.Year == 2011)
@@ -501,24 +502,28 @@ while(true)
     }
 } catch {
 @* ^ keyword.control.exception.catch.cs *@
+@* <- meta.block.cs *@
     var t = true;
     <p>catch</p>
 }
 catch (Exception e)
 @* ^ keyword.control.exception.catch.cs *@
 {
+@* <- meta.block.cs *@
     var t = false;
     <div>catch e</div>
 }
 finally
 @* ^ keyword.control.exception.finally.cs *@
 {
+@* <- meta.block.cs *@
     var t = true;
 }
 
 @lock (SomeLock)
 @* ^ keyword.control.flow.lock.cs *@
 {
+@* <- meta.block.cs *@
     // Do critical section work
 }
 

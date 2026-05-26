@@ -54,7 +54,7 @@ contexts:
     - match: \{
       scope: punctuation.section.block.begin.cs
       set: inside-statement-block
-    - include: stray-punctuations
+    - include: stray-punctuation
     # conditional statements
     - match: if\b
       scope: keyword.control.conditional.if.cs
@@ -249,7 +249,7 @@ contexts:
         2: entity.name.tag.html
         3: punctuation.definition.tag.end.html.razor
       embed: scope:source.razor
-      embed_scope: embed.text.html
+      embed_scope: embed.text.html.razor
       escape: '(</)(text)(>)'
       escape_captures:
         1: punctuation.definition.tag.begin.html.razor
@@ -261,7 +261,7 @@ contexts:
     - match: '(\@)\:'
       scope: keyword.other.embed.html.razor
       captures:
-        1: punctuation.definition.keyword.razor
+        1: punctuation.definition.embedded.razor
       embed: scope:source.razor
       escape: '$\n?'
 
@@ -274,7 +274,7 @@ contexts:
         2: entity.name.tag.html
         3: punctuation.definition.tag.end.html.razor
       embed: scope:source.razor
-      embed_scope: embed.text.html
+      embed_scope: embed.text.html.razor
       escape: '(</)(text)(>)'
       escape_captures:
         1: punctuation.definition.tag.begin.html.razor
@@ -285,7 +285,7 @@ contexts:
       push: scope:source.razor#tag-html-embed
     - match: '(\@)(\:)'
       captures:
-        1: punctuation.definition.keyword.razor
+        1: punctuation.definition.embedded.razor
         2: keyword.other.embed.html.razor
       embed: scope:source.razor
       escape: '$\n?'
@@ -295,5 +295,5 @@ contexts:
   assignment-value:
     - meta_prepend: true
     - match: '\@(?=<)'
-      scope: punctuation.definition.keyword.razor
+      scope: punctuation.definition.embedded.razor
       push: scope:source.razor#tag-html-nested-start
