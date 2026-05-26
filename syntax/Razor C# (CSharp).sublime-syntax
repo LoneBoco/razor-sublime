@@ -141,7 +141,6 @@ contexts:
 
   # Variant of expression that handles just an expression and pops on ) or newlines.
   razor-expression-explicit:
-    - include: razor-comments
     - match: '\)'
       scope: keyword.other.inline.end.razor
       pop: 1
@@ -152,14 +151,12 @@ contexts:
   # Variant of expression that pops on string end or newlines.
   # Used for data binding in Razor components.
   razor-single-quote-expression:
-    - include: razor-comments
     - match: (?=')
       pop: 1
     - match: $
       pop: 1
     - include: expression
   razor-double-quote-expression:
-    - include: razor-comments
     - match: (?=")
       pop: 1
     - match: $
@@ -168,14 +165,12 @@ contexts:
   razor-unquoted-expression:
     - match: (?=[\t\n\f ]|/?>)
       pop: 1
-    - include: razor-comments
     - include: expression
 
   # Variant of expression that pops on string end or newlines.
   # Used for data binding in Razor components.
   razor-single-quote-attribute-annotation:
     - meta_scope: meta.annotation.cs
-    - include: razor-comments
     - match: (?=')
       pop: 1
     - match: $
@@ -183,7 +178,6 @@ contexts:
     - include: inside-attribute
   razor-double-quote-attribute-annotation:
     - meta_scope: meta.annotation.cs
-    - include: razor-comments
     - match: (?=")
       pop: 1
     - match: $
@@ -300,7 +294,6 @@ contexts:
   # These are things like: Func<dynamic, object> petTemplate = @<p>You have a pet named <strong>@item.Name</strong>.</p>;
   assignment-value:
     - meta_prepend: true
-    - include: razor-comments
     - match: '\@(?=<)'
       scope: punctuation.definition.keyword.razor
       push: scope:source.razor#tag-html-nested-start

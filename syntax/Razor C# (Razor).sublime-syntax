@@ -19,6 +19,10 @@ variables:
 
 contexts:
 
+  prototype:
+    - meta_prepend: true
+    - include: razor-comments
+
   main:
     - match: .
       pop: 1
@@ -56,7 +60,6 @@ contexts:
 
   # Insert a namespace.
   cs-namespace:
-    - include: razor-comments
     - match: '(?=\S)'
       pop: 1
       embed: scope:embed.source.cs.razor#using-namespace
@@ -64,14 +67,12 @@ contexts:
 
   # Insert an interface.
   cs-interface:
-    - include: razor-comments
     - match: '{{name_normal}}'
       scope: entity.name.interface.cs
       pop: 1
 
   # Insert a variable.
   cs-variable:
-    - include: razor-comments
     - match: '(?=\S)'
       pop: 1
       embed: scope:embed.source.cs.razor#var-declarator
@@ -79,11 +80,9 @@ contexts:
 
   # Inserts a type.
   cs-type:
-    - include: razor-comments
     - match: '(?=\S)'
       set: scope:embed.source.cs.razor#maybe-type
   cs-type-constraint:
-    - include: razor-comments
     - match: '(?=\S)'
       pop: 1
       embed: scope:embed.source.cs.razor#razor-type-with-constraint
@@ -91,13 +90,11 @@ contexts:
 
   # Insert a colored code block.
   cs-block:
-    - include: razor-comments
     - match: '\{'
       scope: punctuation.section.block.begin.razor keyword.other.block.razor
       set: scope:embed.source.cs.razor#inside-razor-csharp-block
 
   keyword:
-    - include: razor-comments
     - include: component-directive
     - include: block
     - include: general-directive
