@@ -2,6 +2,7 @@
 ---
 name: Razor C# (CSharp)
 scope: embed.source.cs.razor
+version: 2
 hidden: true
 
 extends: Packages/C#/C#.sublime-syntax
@@ -34,18 +35,213 @@ contexts:
 
   # Used for @typeparam since it allows where constraints on the generic type.
   # Embed target with an end-of-line escape.
-  razor_type_with_constraint:
+  razor-type-with-constraint:
     - match: '{{name}}'
       scope: entity.name.interface.cs
-      set: [data_type_constraint, data_type_parameter]
+      set: type-constraints
 
-  code_block_in:
-    - meta_prepend: true
+  # A single statement, with overrides to support a block after statements that require blocks.
+  # The C# syntax doesn't enforce blocks anymore, but we need them so we can keep ourselves in C# mode and not
+  # immediately fall back to HTML mode.
+  razor-statement-eol:
+    - match: '(?=<)'
+      pop: 1
+    - match: '$\n?'
+      pop: 1
+    - include: razor-statement
+
+  razor-statement:
+    - match: \{
+      scope: punctuation.section.block.begin.cs
+      set: inside-statement-block
+    - include: stray-punctuation
+    # conditional statements
+    - match: if\b
+      scope: keyword.control.conditional.if.cs
+      set:
+        - razor-maybe-ifelse-statement
+        - razor-statement
+        - maybe-expression-group
+    - match: switch\b
+      scope: keyword.control.conditional.switch.cs
+      set:
+        - razor-statement
+        - maybe-expression-group
+    # exception statements
+    - match: try\b
+      scope: keyword.control.exception.try.cs
+      set:
+        - razor-maybe-catch-statement
+        - razor-statement
+        - maybe-expression-group
+    # loop statements
+    - match: do\b
+      scope: keyword.control.loop.do.cs
+      set:
+        - razor-maybe-while-statement
+        - razor-statement
+    - match: foreach\b
+      scope: keyword.control.loop.foreach.cs
+      set:
+        - razor-statement
+        - foreach-group
+    - match: for\b
+      scope: keyword.control.loop.for.cs
+      set:
+        - razor-statement
+        - for-group
+    - match: while\b
+      scope: keyword.control.loop.while.cs
+      set:
+        - razor-statement
+        - maybe-expression-group
+    # control flow statements
+    - match: lock\b
+      scope: keyword.control.flow.lock.cs
+      set:
+        - razor-statement
+        - maybe-expression-group
+    # declarations
+    - match: fixed\b
+      scope: keyword.declaration.fixed.cs
+      set:
+        - razor-statement
+        - fixed-group
+    - match: using\b
+      scope: keyword.declaration.using.cs
+      set:
+        - razor-statement
+        - using-body
+    - include: local-declarations
+    # expressions
+    - match: (?=\S)
+      set: razor-expression-implicit
+
+  # Variant of expression that pops on HTML or newlines.
+  razor-expression-implicit:
+    - match: '(?=<)'
+      pop: 1
+    - match: '$\n?'
+      pop: 1
+    - include: terminators
+    - include: parens
+    - include: lambdas
+    # Override to not include the generic, nor allow extraneous whitespace.
+    # Razor will only allow the generic inside explicit Razor expressions.
+    - match: '{{name}}(?={{generic_declaration}})'
+      scope: variable.other.cs
+      pop: 1
+    - match: '{{name}}(?=\()'
+      scope: meta.function-call.identifier.cs variable.function.cs
+      push:
+        - function-call-argument-list
+        - type-argument-list
+    - include: expression-common
+    - include: else-pop
+
+  # Variant of expression that handles just an expression and pops on ) or newlines.
+  razor-expression-explicit:
+    - match: '\)'
+      scope: keyword.other.inline.end.razor
+      pop: 1
+    - match: '$\n?'
+      pop: 1
+    - include: expression
+
+  # Variant of expression that pops on string end or newlines.
+  # Used for data binding in Razor components.
+  razor-single-quote-expression:
+    - match: (?=')
+      pop: 1
+    - match: $
+      pop: 1
+    - include: expression
+  razor-double-quote-expression:
+    - match: (?=")
+      pop: 1
+    - match: $
+      pop: 1
+    - include: expression
+  razor-unquoted-expression:
+    - match: (?=[\t\n\f ]|/?>)
+      pop: 1
+    - include: expression
+
+  # Variant of expression that pops on string end or newlines.
+  # Used for data binding in Razor components.
+  razor-single-quote-attribute-annotation:
+    - meta_scope: meta.annotation.cs
+    - match: (?=')
+      pop: 1
+    - match: $
+      pop: 1
+    - include: inside-attribute
+  razor-double-quote-attribute-annotation:
+    - meta_scope: meta.annotation.cs
+    - match: (?=")
+      pop: 1
+    - match: $
+      pop: 1
+    - include: inside-attribute
+
+  # Formats braces.
+  inside-razor-csharp-block:
     - meta_scope: meta.block.cs
     # Pop at the end of the block so we transition back to HTML correctly.
     - match: '\}'
-      scope: keyword.other.block.razor punctuation.block.end.razor
+      scope: punctuation.section.block.end.razor keyword.other.block.razor
       pop: 1
+    - include: inside-csharp-block
+
+###[ C# BLOCK FIXES ]##########################################################
+
+  # The C# syntax doesn't enforce blocks, which is troublesome because we need to know if we should stay in C# mode or switch back to HTML mode.
+  # These fixes will let us handle chained blocks, like if/else or try/catch scenarios, by explicitly looking for continuation statements.
+
+  razor-maybe-ifelse-statement:
+    - match: else\s+if\b
+      scope: keyword.control.conditional.elseif.cs
+      set:
+        - razor-maybe-ifelse-statement
+        - razor-statement
+        - maybe-expression-group
+    - match: else\b
+      scope: keyword.control.conditional.else.cs
+      set: razor-statement
+    - include: else-pop
+
+  razor-maybe-while-statement:
+    - match: while\b
+      scope: keyword.control.loop.while.cs
+      set: maybe-expression-group
+    - include: else-pop
+
+  razor-maybe-catch-statement:
+    - match: catch\b
+      scope: keyword.control.exception.catch.cs
+      set:
+        - razor-maybe-catch-statement
+        - razor-statement
+        - catch-guard
+        - catch-group
+    - match: finally\b
+      scope: keyword.control.exception.finally.cs
+      set:
+        - razor-maybe-catch-statement
+        - razor-statement
+    - include: else-pop
+
+###[ C# OVERRIDES ]############################################################
+
+  # Allows HTML context switching and Razor comments.
+  expression-common:
+    - meta_prepend: true
+    - match: '\@(?=<)'
+      scope: keyword.other.embed.html.razor
+      push: scope:source.razor#tag-html-embed
+
+  inside-csharp-block:
+    - meta_prepend: true
     # Support <text></text>.
     - match: '(<)(text)(>)'
       captures:
@@ -53,7 +249,7 @@ contexts:
         2: entity.name.tag.html
         3: punctuation.definition.tag.end.html.razor
       embed: scope:source.razor
-      embed_scope: embed.text.html
+      embed_scope: embed.text.html.razor
       escape: '(</)(text)(>)'
       escape_captures:
         1: punctuation.definition.tag.begin.html.razor
@@ -62,74 +258,42 @@ contexts:
     # HTML context switching.
     - match: '(?=<)'
       push: scope:source.razor#tag-html-embed
-    - match: '\@\:'
+    - match: '(\@)\:'
       scope: keyword.other.embed.html.razor
+      captures:
+        1: punctuation.definition.embedded.razor
       embed: scope:source.razor
       escape: '$\n?'
 
-  # Allows HTML context switching and Razor comments.
-  line_of_code_in:
+  inside-statement-block:
     - meta_prepend: true
-    - match: '\@(?=<)'
-      scope: keyword.other.embed.html.razor
-      push: scope:source.razor#tag-html-embed
-
-  # Variant of line_of_code_in that pops on HTML or newlines.
-  razor_line_of_code_in:
-    - meta_prepend: true
+    # Support <text></text>.
+    - match: '(<)(text)(>)'
+      captures:
+        1: punctuation.definition.tag.begin.html.razor
+        2: entity.name.tag.html
+        3: punctuation.definition.tag.end.html.razor
+      embed: scope:source.razor
+      embed_scope: embed.text.html.razor
+      escape: '(</)(text)(>)'
+      escape_captures:
+        1: punctuation.definition.tag.begin.html.razor
+        2: entity.name.tag.html
+        3: punctuation.definition.tag.end.html.razor
+    # HTML context switching.
     - match: '(?=<)'
-      pop: 1
-    - match: '$\n?'
-      pop: 1
-    - include: line_of_code_in
-
-  # Variant of line_of_code_in that pops on string end or newlines.
-  # Used for data binding in Razor components.
-  razor_single_quote_line_of_code_in:
-    - meta_prepend: true
-    - include: razor-comments
-    - match: "(?=')"
-      scope: string.quoted.single.html punctuation.definition.string.end.html
-      pop: 1
-    - match: '$\n?'
-      pop: 1
-    - include: line_of_code_in
-  razor_double_quote_line_of_code_in:
-    - meta_prepend: true
-    - include: razor-comments
-    - match: '(?=\")'
-      scope: string.quoted.double.html punctuation.definition.string.end.html
-      pop: 1
-    - match: '$\n?'
-      pop: 1
-    - include: line_of_code_in
-
-  # Variant of line_of_code_in that handles just an expression and pops on ) or newlines.
-  razor_expression_in:
-    - meta_prepend: true
-    - include: razor-comments
-    - match: '\)'
-      scope: keyword.other.inline.end.razor
-      pop: 1
-    - match: '$\n?'
-      pop: 1
-    - include: line_of_code_in
+      push: scope:source.razor#tag-html-embed
+    - match: '(\@)(\:)'
+      captures:
+        1: punctuation.definition.embedded.razor
+        2: keyword.other.embed.html.razor
+      embed: scope:source.razor
+      escape: '$\n?'
 
   # Enables use of templated Razor delegates.
-  variables_declaration:
+  # These are things like: Func<dynamic, object> petTemplate = @<p>You have a pet named <strong>@item.Name</strong>.</p>;
+  assignment-value:
     - meta_prepend: true
-    - include: razor-comments
-    - match: '='
-      scope: keyword.operator.assignment.variable.cs
-      push:
-        - match: '\@(?=<)'
-          scope: keyword.other.embed.html.razor
-          push: scope:source.razor#tag-html-nested-start
-        - match: (?=;|,)
-          pop: 1
-        - match: (?=\{)
-          push:
-            - match: (?=[^,\s{}])
-              pop: 1
-            - include: initializer_constructor
-        - include: line_of_code_in
+    - match: '\@(?=<)'
+      scope: punctuation.definition.embedded.razor
+      push: scope:source.razor#tag-html-nested-start

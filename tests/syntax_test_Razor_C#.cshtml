@@ -1,59 +1,177 @@
+@* SYNTAX TEST "Razor C#.sublime-syntax" *@
 @attribute [Authorize]
+@* <- source.razor embed.text.html embed.source.cs punctuation.definition.embedded.razor *@
+@* ^^^^^^^             keyword.other.attribute.razor *@
+@*         ^^^^^^^^^^^ meta.annotation *@
 
 @functions {
+@* ^^^^^^^ keyword.other.code.block.razor *@
+@*         ^ punctuation.section.block.begin.razor keyword.other.block.razor *@
+
+@* <- embed.source.cs meta.block.cs *@
     public string GetHello()
+@*    ^ meta.block storage.modifier.access *@
     {
+@*  ^ meta.block.cs punctuation.section.block.begin.cs *@
         return "Hello";
     }
 }
+@* <- punctuation.section.block.end.razor keyword.other.block.razor *@
 
 @implements IDisposable
-@implements namespace.IDisposable
-
-@inherits Namespace.CustomRazorPage<TModel>
+@* ^ keyword.other.implements.razor *@
+@*            ^ support.type.cs *@
+@implements mynamespace.IDisposable
+@*          ^^^^^^^^^^^             support.type.cs *@
+@*                     ^            punctuation.accessor.dot.cs *@
+@*                      ^^^^^^^^^^^ support.type.cs *@
+@inherits MyNamespace.CustomRazorPage<TModel>
+@* ^ keyword.other.inherits.razor *@
+@*        ^^^^^^^^^^^                  support.type.cs *@
+@*                   ^                 punctuation.accessor.dot.cs *@
+@*                                   ^ punctuation.definition.generic.begin.cs *@
 @inject IMyService MyService
+@* ^                  keyword.other.inject.razor *@
+@*       ^            entity.name.interface.cs *@
+@*                  ^ variable.other.cs *@
 @namespace Your.Namespace.Here
+@* ^                           keyword.other.namespace.razor *@
+@*         ^^^^                variable.namespace.cs *@
+@*             ^               punctuation.accessor.dot.cs *@
+@*                        ^^^^ entity.name.namespace.cs *@
 
 @page
+@* ^ keyword.other.page.razor *@
 @page "/resource/{text?}"
+@*    ^^^^^^^^^^^^^^^^^^^ string.quoted.double.cs *@
+@*    ^                   punctuation.definition.string.begin.cs *@
+@*                      ^ punctuation.definition.string.end.cs *@
 @page "{id:int}"
 
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@* ^                                  keyword.other.taghelper.razor *@
+@*            ^                       constant.other.wildcard.asterisk.razor *@
+@*             ^                      punctuation.definition.separator.fqn *@
+@*               ^^^^^^^^^            variable.namespace.cs *@
+@*                        ^           punctuation.accessor.dot.cs *@
+@*                         ^^^^^^^^^^ variable.namespace.cs *@
 @addTagHelper MyAssembly*, MyAssembly.Whatever
+@*            ^^^^^^^^^^  variable.other.cs *@
+@*                      ^ constant.other.wildcard.asterisk.razor *@
+
 @removeTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@* ^                                     keyword.other.taghelper.razor *@
+@*               ^                       constant.other.wildcard.asterisk.razor *@
+@*                ^                      punctuation.definition.separator.fqn *@
+@*                  ^^^^^^^^^            variable.namespace.cs *@
+@*                           ^           punctuation.accessor.dot.cs *@
+@*                            ^^^^^^^^^^ variable.namespace.cs *@
 @removeTagHelper MyAssembly*, MyAssembly.Whatever
+@*               ^^^^^^^^^^  variable.other.cs *@
+@*                         ^ constant.other.wildcard.asterisk.razor *@
+
 @tagHelperPrefix th:
+@* ^                 keyword.other.taghelper.razor *@
+@*               ^^^ entity.name.tag.prefix.razor *@
 
 @model MyApp.Models.MyModel
+@* ^          keyword.other.model.razor *@
+@*     ^^^^^  support.type.cs *@
+@*          ^ punctuation.accessor.dot.cs *@
+
 @using MyApp.Models
+@* ^          keyword.other.using.razor *@
+@*     ^^^^^  variable.namespace.cs *@
+@*          ^ punctuation.accessor.dot.cs *@
 
 @preservewhitespace true
+@* ^                     keyword.other.preservewhitespace.razor *@
+@*                  ^^^^ constant.language.cs *@
 @preservewhitespace
 @preservewhitespace false
+@* ^                      keyword.other.preservewhitespace.razor *@
+@*                  ^^^^^ constant.language.cs *@
 @rendermode InteractiveWebAssembly
+@* ^           keyword.other.rendermode.razor *@
+@*           ^ constant.language.rendermode.razor *@
+@rendermode InteractiveServer
+@*           ^ constant.language.rendermode.razor *@
+@rendermode InteractiveAuto
+@*           ^ constant.language.rendermode.razor *@
+@rendermode RenderMode.InteractiveAuto
+@*           ^ constant.language.rendermode.razor *@
+@rendermode Something
+@*           ^ embed.text.html *@
 
 @layout DoctorWhoLayout
+@* ^       keyword.other.layout.razor *@
+@*       ^ support.type.cs *@
 
 @code { public string MyString; }
+@* ^                              keyword.other.code.block.razor *@
+@*    ^                           punctuation.section.block.begin.razor keyword.other.block.razor *@
+@*       ^                        storage.modifier.access.cs *@
+@*                              ^ punctuation.section.block.end.razor keyword.other.block.razor *@
 @code{ public string MyString; }
+@*   ^     punctuation.section.block.begin.razor keyword.other.block.razor *@
 @code
+@* ^       keyword.other.code.block.razor *@
 {
+@* <-      punctuation.section.block.begin.razor keyword.other.block.razor *@
     public string MyString;
+@*   ^     storage.modifier.access.cs *@
 }
 
 @typeparam TEntity
+@* ^          keyword.other.typeparam.razor *@
+@*          ^ meta.constraints.cs entity.name.interface.cs *@
 @typeparam TEntity where TEntity : IEntity
+@*                  ^                 meta.constraints.cs storage.modifier.where.cs *@
+@*                        ^           support.type.cs *@
+@*                               ^    punctuation.separator.colon.cs *@
+@*                                  ^ support.type.cs *@
 
-<p @attributes="Stuff"></p>
+   <p @attributes="Stuff"></p>
+@* ^                  punctuation.definition.tag.begin.html *@
+@* ^^                 meta.tag.block.any.html *@
+@*  ^                 entity.name.tag.block.any.html *@
+@*    ^               punctuation.definition.embedded.razor *@
+@*     ^^^^^^^^^^     meta.attribute-with-value.style.html keyword.other.attribute-bind.razor *@
+@*                  ^ meta.annotation.cs variable.annotation.cs *@
+
 <label>InputValue:<input @bind="InputValue" @bind:culture="new CultureInfo("th-TH", false)" /></label>
+@*                       ^                                    punctuation.definition.embedded.razor *@
+@*                        ^^^^                                keyword.other.attribute-bind.razor *@
+@*                               ^                            variable.other.cs *@
+@*                                           ^^^^^^^^^^^^     keyword.other.attribute-bind.razor *@
+@*                                                          ^ meta.instantiation.cs keyword.operator.new.cs *@
 
 <form method="post" @formname="starship-plain-form" @onsubmit="Submit" @onclick:preventDefault>
+@*                  ^             punctuation.definition.embedded.razor *@
+@*                   ^^^^^^^^     keyword.other.attribute-bind.razor *@
+@*                              ^ meta.string.html string.quoted.double.html *@
+@*                                                  ^             punctuation.definition.embedded.razor *@
+@*                                                   ^^^^^^^^     keyword.other.attribute-bind.razor *@
+@*                                                              ^ variable.other.cs *@
+@*                                                                     ^          punctuation.definition.embedded.razor *@
+@*                                                                      ^^^^^^^   keyword.other.attribute-bind.razor *@
+@*                                                                             ^  punctuation.separator.event.html *@
+@*                                                                              ^ entity.other.attribute-name.html *@
     <AntiforgeryToken />
     <ReferenceChild @ref="childComponent1" @rendermode='InteractiveAuto' />
+@*                  ^        punctuation.definition.embedded.razor *@
+@*                   ^^^     keyword.other.attribute-bind.razor *@
+@*                         ^ variable.other.cs *@
+@*                                         ^               punctuation.definition.embedded.razor *@
+@*                                          ^^^^^^^^^^     keyword.other.rendermode.razor *@
+@*                                                       ^ constant.language.rendermode.razor *@
     <div>
         <label>
             Identifier:
             <InputText @bind-Value="Model!.Id" />
+@*                     ^               punctuation.definition.embedded.razor *@
+@*                      ^^^^^^^^^^     keyword.other.attribute-bind.razor *@
+@*                                   ^ variable.other.cs *@
         </label>
     </div>
     <div>
@@ -62,45 +180,118 @@
 </form>
 
 <link rel="stylesheet" href="@Assets["BlazorApp.styles.css"]" />
-<div id='@MyClass.MyId' class='theclass'></div>
+@*                           ^   punctuation.definition.embedded.razor *@
+@*                             ^ variable.other.cs *@
+<div id='@MyClass.MyId' class='theclass-@name' custom='custom-@(var)'></div>
+@*      ^    meta.string.html string.quoted.single.html punctuation.definition.string.begin.html *@
+@*       ^   punctuation.definition.embedded.razor *@
+@*         ^ variable.other.cs *@
+@*                             ^^^^^^^^^      meta.string.html string.quoted.single.html *@
+@*                                      ^     punctuation.definition.embedded.razor *@
+@*                                       ^^^^ variable.other.cs *@
+@*                                                     ^^^^^^^     meta.string.html string.quoted.single.html *@
+@*                                                            ^    punctuation.definition.embedded.razor *@
+@*                                                             ^   keyword.other.inline.begin.razor *@
+@*                                                               ^ variable.other.cs *@
+<div id="@MyClass.MyId" class="theclass-@name" custom="custom-@(var)"></div>
+@*      ^    meta.string.html string.quoted.double.html punctuation.definition.string.begin.html *@
+@*       ^   punctuation.definition.embedded.razor *@
+@*         ^ variable.other.cs *@
+@*                                                     ^^^^^^^     meta.string.html string.quoted.double.html *@
+@*                                                            ^    punctuation.definition.embedded.razor *@
+@*                                                             ^   keyword.other.inline.begin.razor *@
+@*                                                               ^ variable.other.cs *@
+<div id=@MyClass.MyId class=theclass-@name custom=custom-@(var)></div>
+@*      ^   string.unquoted.html punctuation.definition.embedded.razor *@
+@*        ^ variable.other.cs *@
+@*                                                ^^^^^^^     meta.string.html string.unquoted.html *@
+@*                                                       ^    punctuation.definition.embedded.razor *@
+@*                                                        ^   keyword.other.inline.begin.razor *@
+@*                                                          ^ variable.other.cs *@
+<link href="@Url.Content("~/Styles/main.css")" rel="stylesheet" type="text/css" />
+@*          ^       punctuation.definition.embedded.razor *@
+@*            ^     variable.other.cs *@
+@*                ^ meta.function-call.identifier.cs variable.function.cs *@
 
 @section test {
-
+@* ^            keyword.other.section.razor *@
+@*       ^^^^   meta.section meta.toc-list variable.other.section.razor *@
+@*            ^ keyword.other.block.razor punctuation.block.begin.razor *@
     <text>
+@*   ^^^^  meta.tag.other.html entity.name.tag.other.html *@
         Some stuff
+@*       ^ embed.text.html *@
     </text>
     <p>Test</p>
     <div>
         <p>Some stuff</p>
     </div>
 }
+@* <- punctuation.section.block.end.razor keyword.other.block.razor *@
 
 @section header {
 
     <p>This is a test</p>
 
     @* Some type of comment *@
+@*  ^^                         comment.block.razor punctuation.definition.comment.begin.razor *@
+@*      ^                      comment.block.razor *@
+@*                          ^^ comment.block.razor punctuation.definition.comment.end.razor *@
 
     @variable.whatever(x => { x < 10 })<p>Okay</p>
+@*  ^                                      punctuation.definition.embedded.razor *@
+@*    ^                                    variable.other.cs *@
+@*             ^                           variable.function.cs *@
+@*                     ^                   meta.function.anonymous.parameters.cs variable.parameter.cs *@
+@*                              ^          keyword.operator.comparison.cs *@
+@*                                ^^       constant.numeric.value.cs *@
+@*                                     ^^^ meta.tag.block.any.html *@
 
     @if (test == 1) {
+@*  ^                 punctuation.definition.embedded.razor *@
+@*   ^^               keyword.control.conditional.if.cs *@
+@*                  ^ meta.block.cs punctuation.section.block.begin.cs *@
         int i = a;
+@*      ^^^           storage.type.primitive.cs *@
     }
 
     @using (var service = GetService()) {
+@*  ^                        punctuation.definition.embedded.razor *@
+@*   ^^^^^                   keyword.declaration.using.cs *@
+@*                         ^ variable.function.cs *@
         int i = a;
+@*      ^^^           storage.type.primitive.cs *@
     }
 }
 
-@{
+   @{
+@* ^  punctuation.definition.embedded.razor *@
+@*  ^ punctuation.section.block.begin.razor keyword.other.block.razor *@
     #region Test Region
     string[] teamMembers = {"Matt", "Joanne", "Robert", "Nancy"};
+@*  ^^^^^^ storage.type.primitive.cs *@
     <p>The number of na@* mes in the teamMembers array: @teamMembers.Length</p>
     <p>The number of na *@mes in the teamMembers array: @teamMembers.Length </p>
+@*  ^^^ comment.block.razor *@
     <p>The number of names in the teamMembers array: @teamMembers.Length</p>
+@*  ^^^                                                                      meta.tag.block.any.html *@
+@*                                                   ^                       punctuation.definition.embedded.razor *@
+@*                                                     ^                     variable.other.cs *@
+@*                                                                 ^         variable.other.cs *@
+@*                                                                      ^^^^ meta.tag.block.any.html *@
     <p>The number of names in the teamMembers array: @teamMembers.Length </p>
+@*                                                                      ^     embed.text.html *@
+@*                                                                       ^^^^ meta.tag.block.any.html *@
     @:Raw HTML line test @teamMembers.Length
+@*  ^                                    punctuation.definition.embedded.razor *@
+@*   ^                                   keyword.other.embed.html.razor *@
+@*     ^                                 embed.text.html *@
+@*                       ^               punctuation.definition.embedded.razor *@
+@*                         ^             variable.other.cs *@
+@*                                     ^ variable.other.cs *@
+
     <p>Robert is now in position: @Array.IndexOf(teamMembers, "Robert")</p>
+@*                                        ^ variable.function.cs *@
     My.Namespace.Var i = 0;
     #endregion
 
@@ -108,21 +299,38 @@
     {
         var name2 = "(U) " + name;
         <p>@name.Select(x => x.ToUpper())</p>
+@*      ^^^                                   meta.tag.block.any.html *@
+@*         ^                                  punctuation.definition.embedded.razor *@
+@*           ^                                variable.other.cs *@
+@*                ^                           variable.function.cs *@
+@*                                       ^^^^ meta.tag.block.any.html *@
     }
     Array.Reverse(teamMembers);
     foreach (var reversedItem in teamMembers)
     {
         <text>
+@*       ^^^^  entity.name.tag.html *@
             Reversed
+@*          ^   embed.text.html *@
             @reversedItem
+@*          ^   punctuation.definition.embedded.razor *@
+@*            ^ variable.other.cs *@
         </text>
+@*        ^^^^ entity.name.tag.html *@
     }
 }
 
 @{
     Func<dynamic, object> petTemplate = @<p>You have a pet named <strong>@item.Name</strong>.</p>;
+@*                                      ^                                                          punctuation.definition.embedded.razor *@
+@*                                       ^^^                                                       meta.tag.block.any.html *@
+@*                                                                       ^                         punctuation.definition.embedded.razor *@
+@*                                                                         ^                       variable.other.cs *@
+@*                                                                                           ^^^^  meta.tag.block.any.html *@
+@*                                                                                               ^ punctuation.terminator.statement.cs *@
 
     var pets = new List<Pet>
+@*  ^^^ storage.type.variant.cs *@
     {
         new Pet { Name = "Rin Tin Tin" },
         new Pet { Name = "Mr. Bigglesworth" },
@@ -132,14 +340,20 @@
 
 @{
 <p style="display: none;" class='whatever'></p>
+@* <- meta.tag.block.any.html punctuation.definition.tag.begin.html *@
     var c = @<p>My paragraph</p>;
     Func<dynamic, object> b = @<strong>@item</strong>;
+@*  ^^^^ support.type.cs *@
 }
 
 <ul>
 @foreach (var myItem in Request.ServerVariables)
 {
     @:<li>My item is @myItem.Test()
+@*  ^      punctuation.definition.embedded.razor *@
+@*   ^     keyword.other.embed.html.razor *@
+@*    ^^^^ meta.tag.block.any.html *@
+@*                            ^ variable.function.cs *@
 }
 </ul>
 
@@ -157,16 +371,41 @@
 <p>@DateTime.Now</p>
 <p>@DateTime.IsLeapYear(2016)</p>
 
+<!-- Implicit expressions should not contain spaces, except after await or when the C# statement has a clear ending -->
 <p>@await DoSomething("hello", "world")</p>
+@* ^                                        punctuation.definition.embedded.razor *@
+@*  ^^^^^                                   keyword.control.flow.await.cs *@
+@*        ^^^^^^^^^^^                       variable.function.cs *@
+@*                     ^^^^^                meta.string.cs string.quoted.double.cs *@
+@*                                     ^^^^ meta.tag.block.any.html *@
 
+<!-- An @ inside an email address is not identified as a transition character -->
 <p>My email is example@example</p>
-<p>The book is ISBN@(isbnNumber)</p>
-<span>Escaped @@ symbol</span>
+@*             ^^^^^^^^^^^^^^^ meta.email *@
 
+<p>The book is ISBN@(isbnNumber)</p>
+@*                 ^              punctuation.definition.embedded.razor *@
+@*                  ^             keyword.other.inline.begin.razor *@
+@*                    ^           variable.other.cs *@
+@*                             ^  keyword.other.inline.end.razor *@
+@*                              ^ meta.tag.block.any.html punctuation.definition.tag.begin.html *@
+
+<span>Escaped @@ symbol</span>
+@*            ^^ constant.character.escape *@
+
+<!-- <int> should match as HTML -->
+<p>@GenericMethod<int>()</p>
+@*   ^                 variable.other.cs *@
+@*               ^^^^^ meta.tag.other.html *@
+
+<!-- <int> should match as a C# generic -->
 <p>@(GenericMethod<int>())</p>
+@*    ^                 variable.function.cs *@
+@*                ^^^^^ meta.generic.cs *@
 
 @if (true) {
     var test = true;
+@*  ^^^ storage.type.variant.cs *@
 }
 
 @if (DateTime.Now.Year == 2010)
@@ -178,26 +417,40 @@
         the date: @DateTime.Now
     </text>
 
-    @* BUG: The style should highlight but it doesn't.  Most likely not fixable. *@
+    @* BUG: The style should highlight but it doesn't.  Most likely not fixable without introducing recursion. *@
     <p @if (true) { <text>style="display: none"</text> }>Test</p>
 }
 else if (DateTime.Now.Year == 2011)
+@* ^ keyword.control.conditional.elseif.cs *@
 {
     var x = true;
 }
 else
+@* ^ keyword.control.conditional.else.cs *@
 {
     var t = false;
     <p>Not 2010.</p>
     var i = true;
 }
 
+@if (true)
+{
+    var i = 1;
+}
+else for (var j = 0; j < 10; ++j)
+@*    ^           keyword.control.loop.for.cs *@
+    ViewData[$"Test{j}"] = $"Test{j}";
+@*    ^           variable.other.cs *@
+@*              ^ meta.string.interpolated.cs *@
+
 <p style="display: none">Test</p>
 
 @switch (DateTime.Now.Year)
 {
     case 2015:
+@*   ^      keyword.control.conditional.case.cs *@
         <p>It is 2015</p>
+@*      ^^^ meta.tag.block.any.html *@
         break;
     case 2016:
         <p>It is 2016</p>
@@ -207,25 +460,30 @@ else
 
 @while (true)
 {
+@* <- meta.block.cs *@
     var t = true;
     <p>LOOP</p>
 }
 
 @do
 {
+@* <- meta.block.cs *@
     var t = true;
     <p>LOOP</p>
 }
 while(true)
+@* ^ keyword.control.loop.while.cs *@
 
 @foreach (var person in people)
 {
+@* <- meta.block.cs *@
     <p>Name: @person.Name</p>
     <p>Age: @person.Age</p>
 }
 
 @using (Html.BeginForm())
 {
+@* <- meta.block.cs *@
     <div>
         Email: <input type="email" id="Email" value="">
         <button>Register</button>
@@ -234,6 +492,7 @@ while(true)
 
 @try
 {
+@* <- meta.block.cs *@
     var t = true;
     if (true)
     {
@@ -242,20 +501,37 @@ while(true)
         @:<p>TRY</p>
     }
 } catch {
+@* ^ keyword.control.exception.catch.cs *@
+@* <- meta.block.cs *@
     var t = true;
     <p>catch</p>
 }
 catch (Exception e)
+@* ^ keyword.control.exception.catch.cs *@
 {
+@* <- meta.block.cs *@
     var t = false;
     <div>catch e</div>
 }
 finally
+@* ^ keyword.control.exception.finally.cs *@
 {
+@* <- meta.block.cs *@
     var t = true;
 }
 
 @lock (SomeLock)
+@* ^ keyword.control.flow.lock.cs *@
 {
+@* <- meta.block.cs *@
     // Do critical section work
 }
+
+<style>
+@media {}
+   @* Comment inside a style tag. *@
+@* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.block.razor *@
+</style>
+
+<span style="display: none; @* Comment in style attribute *@"></span>
+@*                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.block.razor *@

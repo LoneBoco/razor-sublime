@@ -1,0 +1,5 @@
+# Exclude .sublime-project files from export
+*.sublime-project export-ignore
+
+# Exclude everything in the tests directory from export
+tests/** export-ignore

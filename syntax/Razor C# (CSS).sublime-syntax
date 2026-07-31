@@ -1,0 +1,37 @@
+%YAML 1.2
+---
+name: Razor C# (CSS)
+scope: embed.text.css.razor
+version: 2
+hidden: true
+
+extends: Packages/CSS/CSS.sublime-syntax
+
+#############################
+
+contexts:
+
+  prototype:
+    - meta_prepend: true
+    - include: razor-comments
+
+  main:
+    - include: stylesheet
+
+  razor-comments:
+    # E-mail addresses have the @ symbol but don't activate code.
+    - match: '[\+-.\w]+@[-a-z0-9]+(\.[-a-z0-9]+)*'
+      scope: meta.email
+    # Match an escaped @.
+    - match: '@@'
+      scope: constant.character.escape
+    # Match the start of our comment.
+    - match: '@\*'
+      scope: punctuation.definition.comment.begin.razor
+      push:
+        - meta_scope: comment.block.razor
+        - match: '\*@'
+          scope: punctuation.definition.comment.end.razor
+          pop: 1
+    - match: '\*@'
+      scope: invalid.illegal.stray-comment-end.razor

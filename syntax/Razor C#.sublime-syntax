@@ -25,10 +25,12 @@ variables:
 
   razor_html_default: '(?xi: section)'
 
-# This syntax uses embed.text.html and embed.source.cs as scope names.
+# This syntax uses embed.text.html.razor, embed.text.css.razor, and embed.source.cs.razor as scope names.
 # While not considered proper, this is done to ensure comments work.
 # Without it, comments that start in one language and end in the other won't work properly.
 # This is due to conflicts with the built-in comments assigned to text.html.basic and source.cs.
+
+# Razor syntax last checked as of .NET 10.
 
 #############################
 
@@ -36,17 +38,19 @@ contexts:
 
   main:
     - meta_prepend: true
-    - meta_scope: embed.text.html
+    - meta_scope: embed.text.html.razor
     - include: razor-comments
 
   # Used to apply a meta scope to the C# syntax.
   immediately-pop-cs:
-    - meta_scope: embed.source.cs
+    - meta_include_prototype: false
+    - meta_scope: embed.source.cs.razor
     - match: ''
       pop: 1
   immediately-pop-cs-clear-string-scope:
     - clear_scopes: 1
-    - meta_scope: embed.source.cs
+    - meta_include_prototype: false
+    - meta_scope: embed.source.cs.razor
     - match: ''
       pop: 1
 
@@ -69,74 +73,121 @@ contexts:
       scope: invalid.illegal.stray-comment-end.razor
 
   razor-keywords:
-    - meta_scope: embed.source.cs
     # Razor keywords that keep the block in HTML mode.
     - match: '\@(?={{razor_html_default}})'
-      scope: keyword.other.reserved.razor
+      scope: punctuation.definition.embedded.razor
       set: scope:source.razor.engine#keyword
     # Razor keywords that switch to C# default.
     - match: '\@(?={{razor_keywords}})'
-      scope: keyword.other.reserved.razor
-      push: [immediately-pop-cs, scope:source.razor.engine#keyword]
+      scope: punctuation.definition.embedded.razor
+      push:
+        - immediately-pop-cs
+        - scope:source.razor.engine#keyword
     # Inline C# expressions.
     - match: '\@'
-      scope: keyword.other.expression.razor
-      push: [immediately-pop-cs, scope:embed.source.cs.razor#razor_line_of_code_in]
+      scope: punctuation.definition.embedded.razor
+      push:
+        - immediately-pop-cs
+        - scope:embed.source.cs.razor#razor-expression-implicit
 
   # When inside an HTML attribute, we need special handling to deal with switching back to HTML.
   # We also need to clear the string scope.
   # Inline C# expressions only.
   razor-keywords-html-attribute-single-quoted:
     - match: '\@'
-      scope: keyword.other.expression.razor
-      push: [immediately-pop-cs-clear-string-scope, scope:embed.source.cs.razor#razor_single_quote_line_of_code_in]
+      scope: punctuation.definition.embedded.razor
+      push:
+        - match: (?={{razor_keywords}})
+          set:
+            - immediately-pop-cs-clear-string-scope
+            - scope:source.razor.engine#keyword
+        - match: ''
+          set:
+            - immediately-pop-cs-clear-string-scope
+            - scope:embed.source.cs.razor#razor-single-quote-expression
   razor-keywords-html-attribute-double-quoted:
     - match: '\@'
-      scope: keyword.other.expression.razor
-      push: [immediately-pop-cs-clear-string-scope, scope:embed.source.cs.razor#razor_double_quote_line_of_code_in]
+      scope: punctuation.definition.embedded.razor
+      push:
+        - match: (?={{razor_keywords}})
+          set:
+            - immediately-pop-cs-clear-string-scope
+            - scope:source.razor.engine#keyword
+        - match: ''
+          set:
+            - immediately-pop-cs-clear-string-scope
+            - scope:embed.source.cs.razor#razor-double-quote-expression
+  razor-keywords-html-attribute-unquoted:
+    - match: '\@'
+      scope: punctuation.definition.embedded.razor
+      push:
+        - match: (?={{razor_keywords}})
+          set:
+            - immediately-pop-cs-clear-string-scope
+            - scope:source.razor.engine#keyword
+        - match: ''
+          set:
+            - immediately-pop-cs-clear-string-scope
+            - scope:embed.source.cs.razor#razor-unquoted-expression
 
   # Enable Razor context switching.
   tag-html:
-    - meta_scope: embed.text.html
+    - meta_scope: embed.text.html.razor
     - meta_prepend: true
     - include: razor-keywords
 
   # Special nested syntax for templated delegates.
   tag-html-nested-start:
-    - meta_scope: embed.text.html
+    - meta_scope: embed.text.html.razor
     - include: razor-keywords
     - match: (<)({{html_block_tags}})
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.block.any.html
-      set: [tag-html-nested-end, block-any-tag-content]
+      set:
+        - tag-html-nested-end
+        - block-any-tag-content
     - match: (<)({{html_inline_tags}})
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.inline.any.html
-      set: [tag-html-nested-end, inline-any-tag-content]
+      set:
+        - tag-html-nested-end
+        - inline-any-tag-content
     - match: (<)((?i:form|fieldset){{tag_name_break}})
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.block.form.html
-      set: [tag-html-nested-end, block-forms-tag-content]
+      set:
+        - tag-html-nested-end
+        - block-forms-tag-content
     - match: (<)({{html_forms_tags}})
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.inline.form.html
-      set: [tag-html-nested-end, inline-forms-tag-content]
+      set:
+        - tag-html-nested-end
+        - inline-forms-tag-content
     - match: (<)({{html_table_tags}})
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.inline.table.html
-      set: [tag-html-nested-end, table-tag-content]
+      set:
+        - tag-html-nested-end
+        - table-tag-content
 
   # Special nested syntax for templated delegates.
   tag-html-nested-end:
-    - meta_scope: embed.text.html
+    - meta_scope: embed.text.html.razor
     - include: razor-keywords
     - match: '(</)({{tag_name}})(>)'
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.block.any.html
         3: punctuation.definition.tag.end.html
@@ -146,10 +197,11 @@ contexts:
 
   # Properly pop back to C# mode when we encounter an end tag (handled in tag-end-razor)
   tag-html-embed:
-    - meta_scope: embed.text.html
+    - meta_scope: embed.text.html.razor
     - include: razor-comments
     - match: '(</)({{html_block_tags}}|{{html_inline_tags}})'
       captures:
+        0: meta.tag.block.any.html
         1: punctuation.definition.tag.begin.html
         2: entity.name.tag.block.any.html
       push:
@@ -161,13 +213,13 @@ contexts:
   # Pop 2 to get us back to C#.
   tag-end-razor:
     - match: '>'
-      scope: punctuation.definition.tag.end.html
+      scope: meta.tag.block.any.html punctuation.definition.tag.end.html
       pop: 2
 
   # Special context to properly get us out of @section blocks.
   razor-section-block:
     - match: '\}'
-      scope: keyword.other.block.razor punctuation.block.end.razor
+      scope: punctuation.section.block.end.razor keyword.other.block.razor
       pop: 2
     - include: main
 
@@ -183,6 +235,9 @@ contexts:
   tag-class-attribute-value-single-quoted-content:
     - meta_prepend: true
     - include: razor-keywords-html-attribute-single-quoted
+  tag-class-attribute-value-unquoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-unquoted
 
   tag-href-attribute-value-double-quoted-content:
     - meta_prepend: true
@@ -190,6 +245,9 @@ contexts:
   tag-href-attribute-value-single-quoted-content:
     - meta_prepend: true
     - include: razor-keywords-html-attribute-single-quoted
+  tag-href-attribute-value-unquoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-unquoted
 
   tag-id-attribute-value-double-quoted-content:
     - meta_prepend: true
@@ -197,3 +255,60 @@ contexts:
   tag-id-attribute-value-single-quoted-content:
     - meta_prepend: true
     - include: razor-keywords-html-attribute-single-quoted
+  tag-id-attribute-value-unquoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-unquoted
+
+  tag-generic-attribute-value-double-quoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-double-quoted
+  tag-generic-attribute-value-single-quoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-single-quoted
+  tag-generic-attribute-value-unquoted-content:
+    - meta_prepend: true
+    - include: razor-keywords-html-attribute-unquoted
+
+  style-css-content:
+    - meta_include_prototype: false
+    - match: \s*((<!\[)(CDATA)(\[))
+      captures:
+        1: meta.tag.sgml.cdata.html
+        2: punctuation.definition.tag.begin.html
+        3: keyword.declaration.cdata.html
+        4: punctuation.definition.tag.begin.html
+      pop: 1  # make sure to match only once
+      embed: scope:embed.text.css.razor
+      embed_scope: meta.tag.sgml.cdata.html source.css.embedded.html
+      escape: \]\]>
+      escape_captures:
+        0: meta.tag.sgml.cdata.html punctuation.definition.tag.end.html
+    - match: '{{style_content_begin}}'
+      captures:
+        1: comment.block.html punctuation.definition.comment.begin.html
+      pop: 1  # make sure to match only once
+      embed: scope:embed.text.css.razor
+      embed_scope: source.css.embedded.html
+      escape: '{{style_content_end}}'
+      escape_captures:
+        1: source.css.embedded.html
+        2: comment.block.html punctuation.definition.comment.end.html
+        3: source.css.embedded.html
+        4: comment.block.html punctuation.definition.comment.end.html
+
+  tag-style-attribute-value:
+    - match: \"
+      scope: meta.string.html string.quoted.double.html punctuation.definition.string.begin.html
+      embed: scope:embed.text.css.razor#rule-list-body
+      embed_scope: meta.string.html source.css.embedded.html
+      escape: \"
+      escape_captures:
+        0: meta.string.html string.quoted.double.html punctuation.definition.string.end.html
+    - match: \'
+      scope: meta.string.html string.quoted.single.html punctuation.definition.string.begin.html
+      embed: scope:embed.text.css.razor#rule-list-body
+      embed_scope: meta.string.html source.css.embedded.html
+      escape: \'
+      escape_captures:
+        0: meta.string.html string.quoted.single.html punctuation.definition.string.end.html
+    - include: else-pop
